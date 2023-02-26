@@ -8,7 +8,10 @@ class Engine
 public:
 
     bool                    Keys[1024];
+    bool                    IsMouseMoving;
     unsigned int            Width, Height;
+    float                   MouseOffsetX;
+    float                   MouseOffsetY;
 
     // constructor/destructor
     Engine(unsigned int width, unsigned int height);

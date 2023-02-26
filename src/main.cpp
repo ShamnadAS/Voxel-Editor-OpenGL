@@ -56,6 +56,8 @@ int main(int argc, char *argv[])
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     //glEnable(GL_DEPTH_TEST);
 
     // initialize game
@@ -79,6 +81,7 @@ int main(int argc, char *argv[])
         // manage user input
         // -----------------
         VoxelEngine.ProcessInput(deltaTime);
+        VoxelEngine.IsMouseMoving = false;
 
         // update game state
         // -----------------
@@ -87,7 +90,7 @@ int main(int argc, char *argv[])
         // render
         // ------
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         VoxelEngine.Render();
 
         glfwSwapBuffers(window);
@@ -117,6 +120,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+    VoxelEngine.IsMouseMoving = true;
+
 	if (firstMouse)
 	{
 		lastX = xpos;
@@ -124,8 +129,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 		firstMouse = false;
 	}
 
-	float xOffset = xpos - lastX;
-	float yOffset = lastY - ypos; // reversed: y ranges bottom to top
+	VoxelEngine.MouseOffsetX = xpos - lastX;
+	VoxelEngine.MouseOffsetY = lastY - ypos;  // reversed: y ranges bottom to top
 	lastX = xpos;
 	lastY = ypos;
 }
