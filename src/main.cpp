@@ -11,6 +11,7 @@ void framebuffers_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 // The Width of the screen
 const unsigned int SCREEN_WIDTH = 800;
@@ -48,6 +49,7 @@ int main(int argc, char *argv[])
     glfwSetFramebufferSizeCallback(window, framebuffers_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     // OpenGL configuration
     // --------------------
@@ -82,6 +84,7 @@ int main(int argc, char *argv[])
         // -----------------
         VoxelEngine.ProcessInput(deltaTime);
         VoxelEngine.IsMouseMoving = false;
+        VoxelEngine.IsMouseScrolling = false;
 
         // update game state
         // -----------------
@@ -89,7 +92,7 @@ int main(int argc, char *argv[])
 
         // render
         // ------
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         VoxelEngine.Render();
 
@@ -135,8 +138,25 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastY = ypos;
 }
 
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button >= 0 && button <= 2)
+    {
+        if(action == GLFW_PRESS)
+        {
+            VoxelEngine.Buttons[button] = true;
+        }
+        else if(action == GLFW_RELEASE)
+        {
+            VoxelEngine.Buttons[button] = false;
+        }
+    }
+}
+
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+    VoxelEngine.IsMouseScrolling = true;
+    VoxelEngine.MouseScroll = static_cast<float>(yoffset);
 }
 
 void framebuffers_size_callback(GLFWwindow* window, int width, int height)

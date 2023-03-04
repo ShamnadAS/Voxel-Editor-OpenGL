@@ -76,6 +76,7 @@ struct Vector3
 
     // utils functions
     void        set(float x, float y, float z);
+    float*      get();
     float       length() const;                         //
     float       distance(const Vector3& vec) const;     // distance between two vectors
     float       angle(const Vector3& vec) const;        // angle between two vectors
@@ -359,6 +360,12 @@ inline float& Vector3::operator[](int index) {
 
 inline void Vector3::set(float x, float y, float z) {
     this->x = x; this->y = y; this->z = z;
+}
+
+inline float* Vector3::get()
+{
+    float value[] = {x, y, z};
+    return value;
 }
 
 inline float Vector3::length() const {

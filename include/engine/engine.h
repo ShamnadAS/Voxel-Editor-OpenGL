@@ -8,10 +8,13 @@ class Engine
 public:
 
     bool                    Keys[1024];
+    bool                    Buttons[3];
     bool                    IsMouseMoving;
+    bool                    IsMouseScrolling;
     unsigned int            Width, Height;
     float                   MouseOffsetX;
     float                   MouseOffsetY;
+    float                   MouseScroll;
 
     // constructor/destructor
     Engine(unsigned int width, unsigned int height);
