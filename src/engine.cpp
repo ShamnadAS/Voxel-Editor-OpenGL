@@ -11,6 +11,7 @@ Grid *Mygrid;
 Camera *MyCamera;
 
 unsigned int debugVAO;
+std::vector<Matrix4> cubes;
 
 void Debug();
 
@@ -29,15 +30,20 @@ void Engine::Init()
    ResourceManager::LoadShader("shaders/gridShader.vs", "shaders/gridShader.fs", nullptr, "gridShader");
    ResourceManager::LoadShader("shaders/debugShader.vs", "shaders/debugShader.fs", nullptr, "debugShader");
 
-   MyCamera = new Camera();
-   MyCamera->Position = Vector3(0.0f, 0.0f, 10.0f);
-
    Shader cubeShader = ResourceManager::GetShader("cubeShader");
    Shader gridShader = ResourceManager::GetShader("gridShader");
+
+   Mygrid = new Grid(gridShader, 26, 26, Vector3(0.5f, 0.5f, 0.5f));
+   Mygrid->Init();
+
+   MyCamera = new Camera();
+   MyCamera->Position = Vector3(0.0f, 0.0f, 10.0f);
+   float targetX = Mygrid->cellSize * (float)Mygrid->column / 2.0f;
+   float targetZ = Mygrid->cellSize * (float)Mygrid->row / 2.0f;
+   MyCamera->Target = Vector3(targetX, 0.0f, targetZ);
+
    Renderer = new CubeRenderer(cubeShader);
    Renderer->Init();
-   Mygrid = new Grid(gridShader, 25, 25, Vector3(0.5f, 0.5f, 0.5f));
-   Mygrid->Init();
 
    Debug();
 }
@@ -79,6 +85,15 @@ void Engine::ProcessInput(float dt)
         Vector3 hitPos = Mygrid->RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos);
         std::cout << "(" + std::to_string(hitPos.x) + "," + std::to_string(hitPos.y) + "," + 
         std::to_string(hitPos.z) + ")" << std::endl;
+        Matrix4 model;
+        float intPart;
+        modf(hitPos.x, &intPart);
+        hitPos.x = intPart + 0.5f;
+        modf(hitPos.z, &intPart);
+        hitPos.z = intPart + 0.5f;
+        hitPos.y = 0.5f;
+        model.translate(hitPos);
+        cubes.push_back(model);
     }
 
     if(IsMouseScrolling)
@@ -96,6 +111,11 @@ void Engine::Render()
     model.translate(Vector3(5.0f, 0.5f, 5.0f));
     Renderer->Draw(model);
     Mygrid->Draw();
+
+    for (auto & element : cubes) 
+    {
+        Renderer->Draw(element);
+    }
    
     //Debug
     Shader debugShader = ResourceManager::GetShader("debugShader");
@@ -104,10 +124,10 @@ void Engine::Render()
     debugModel.scale(Mygrid->row / 2.0f);
     debugShader.SetMatrix4("model", debugModel);
     glBindVertexArray(debugVAO);
-    debugShader.SetVector3f("color", Vector3(1.0f, 0.0f, 0.0f));
+    debugShader.SetVector3f("color", Vector3(1.0f, 0.41f, 0.41f));
     glDrawArrays(GL_LINES, 0, 2);
 
-    debugShader.SetVector3f("color", Vector3(0.0f, 0.0f, 1.0f));
+    debugShader.SetVector3f("color", Vector3(0.30f, 0.59f, 1.0f));
     debugModel.rotateY(-90.0f);
     debugShader.SetMatrix4("model", debugModel);
     glDrawArrays(GL_LINES, 0, 2);

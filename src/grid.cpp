@@ -23,14 +23,14 @@ void Grid::Init()
     float width = (float)row * cellSize;
     std::vector<float> vertices;
 
-    Vector3 startPos(length / 2.0f, 0.0f, width / 2.0f);
+    Vector3 startPos(0.0f, 0.0f, 0.0f);
     vertices.push_back(startPos.z);
     vertices.push_back(startPos.y);
     vertices.push_back(startPos.x);
     Vector3 endPos;
     
     //row attributes
-    endPos = Vector3(-startPos.x, 0.0f, startPos.z);
+    endPos = Vector3(length, 0.0f, 0.0f);
     vertices.push_back(endPos.z);
     vertices.push_back(endPos.y);
     vertices.push_back(endPos.x);
@@ -48,7 +48,7 @@ void Grid::Init()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     //column attributes
-    endPos = Vector3(startPos.x, 0.0f, -startPos.z);
+    endPos = Vector3(0.0f, 0.0f, width);
     vertices.erase(vertices.end() - 3, vertices.end());
     vertices.push_back(endPos.z);
     vertices.push_back(endPos.y);
@@ -71,14 +71,14 @@ void Grid::Init()
 
 void Grid::Draw()
 {
+    Matrix4 model;
     shader.Use();
-	Matrix4 model;
 	shader.SetMatrix4("model", model);
     glBindVertexArray(this->rowVAO);
     for (unsigned int i = 0; i <= row; i++)
     {
         model.identity();
-        model.translate(Vector3(-cellSize * i, 0.0f, 0.0f));
+        model.translate(Vector3(cellSize * i, 0.0f, 0.0f));
         shader.SetMatrix4("model", model);
         glDrawArrays(GL_LINES, 0, 2);
     }
@@ -87,7 +87,7 @@ void Grid::Draw()
     for (unsigned int i = 0; i <= column; i++)
     {   
         model.identity();
-        model.translate(Vector3(0.0f, 0.0f, -cellSize * i));
+        model.translate(Vector3(0.0f, 0.0f, cellSize * i));
         shader.SetMatrix4("model", model);
         glDrawArrays(GL_LINES, 0, 2);
     }
