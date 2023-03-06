@@ -73,11 +73,9 @@ void CubeRenderer::Init()
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
-void CubeRenderer::Draw()
+void CubeRenderer::Draw(Matrix4 &model)
 {
     shader.Use();
-	Matrix4 model;
-	model.translate(Vector3(0.0f, 0.5f, 0.0f));
 	shader.SetMatrix4("model", model);
     glBindVertexArray(this->VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);

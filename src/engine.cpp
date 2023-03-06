@@ -24,14 +24,13 @@ void Engine::Init()
    ResourceManager::LoadShader("shaders/cubeShader.vs", "shaders/cubeShader.fs", nullptr, "cubeShader");
 
    MyCamera = new Camera();
-   MyCamera->Position = Vector3(0.0f, 0.0f, 5.0f);
+   MyCamera->Position = Vector3(0.0f, 0.0f, 10.0f);
 
    Shader shader = ResourceManager::GetShader("cubeShader");
    Renderer = new CubeRenderer(shader);
    Renderer->Init();
    Mygrid = new Grid(shader, 25, 25, Vector3(0.5f, 0.5f, 0.5f));
    Mygrid->Init();
-
 }
 
 void Engine::Update(float dt)
@@ -52,24 +51,34 @@ void Engine::ProcessInput(float dt)
     {   
         if(Buttons[GLFW_MOUSE_BUTTON_MIDDLE] && Keys[GLFW_KEY_LEFT_SHIFT])
         {
-            MyCamera->CameraPan(MouseOffsetX, MouseOffsetY, dt);
+            //MyCamera->CameraMovement(MouseOffsetX, MouseOffsetY, dt);
         }
         else if(Buttons[GLFW_MOUSE_BUTTON_MIDDLE])
         {
-            MyCamera->ProcessMouseMovement(MouseOffsetX, MouseOffsetY);
-            std::cout << "mouseOffsetX: " +  std::to_string(MouseOffsetX) << std::endl;
+            MyCamera->CameraRotation(MouseOffsetX, MouseOffsetY);
             //std::cout << "mouseOffsetY: " + std::to_string(MouseOffsetY) << std::endl;
         }
+    }
+    if(Buttons[GLFW_MOUSE_BUTTON_LEFT])
+    {
+        Vector2 scrMousePos(MousePosX, MousePosY);
+        Vector3 hitPos = Mygrid->RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos);
+        std::cout << "(" + std::to_string(hitPos.x) + "," + std::to_string(hitPos.y) + "," + 
+        std::to_string(hitPos.z) + ")" << std::endl;
     }
 
     if(IsMouseScrolling)
     {
-        MyCamera->ProcessMouseScroll(MouseScroll);
+        MyCamera->CameraZoom(MouseScroll);
     }
 }
 
 void Engine::Render()
 {
-    Renderer->Draw();
+    Matrix4 model;
+    model.translate(Vector3(0.0f, 0.5f, 0.0f));
+    Renderer->Draw(model);
+    model.translate(Vector3(5.0f, 0.0f, 5.0f));
+    Renderer->Draw(model);
     Mygrid->Draw();
 }

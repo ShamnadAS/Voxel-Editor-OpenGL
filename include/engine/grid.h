@@ -2,6 +2,7 @@
 
 #include <math/Vectors.h>
 #include <utility/shader.h>
+#include <engine/engineManager.h>
 
 class Grid
 {
@@ -14,6 +15,7 @@ class Grid
     ~Grid();
     void Draw();
     void Init();
+    Vector3 RayCastHit(Camera &camera, float scrWidth, float scrHeight, float n, Vector2 &scrMousePos);
 
     private:
     unsigned int rowVAO;

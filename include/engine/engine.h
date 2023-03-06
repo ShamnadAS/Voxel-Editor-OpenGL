@@ -15,6 +15,8 @@ public:
     float                   MouseOffsetX;
     float                   MouseOffsetY;
     float                   MouseScroll;
+    float                   MousePosX;
+    float                   MousePosY;
 
     // constructor/destructor
     Engine(unsigned int width, unsigned int height);
