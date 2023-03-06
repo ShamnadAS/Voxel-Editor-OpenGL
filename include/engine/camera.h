@@ -16,7 +16,7 @@ class Camera
 public:
     // camera Attributes
     Vector3 Position;
-    Vector3 Front;
+    Vector3 Forward;
     Vector3 Up;
     Vector3 Right;
     Vector3 WorldUp;
@@ -29,7 +29,7 @@ public:
     float Zoom;
 
     // constructor with vectors
-    Camera(Vector3 position = Vector3(0.0f, 5.0f, 5.0f), Vector3 up = Vector3(0.0f, 1.0f, 0.0f)) : Front(Vector3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+    Camera(Vector3 position = Vector3(0.0f, 0.0f, 5.0f), Vector3 up = Vector3(0.0f, 1.0f, 0.0f)) : Forward(Vector3(0.0f, 0.0f, 1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
     {
         Position = position;
         WorldUp = up;
@@ -59,6 +59,16 @@ public:
 
         HorizontalAngle = xoffset;
         VerticalAngle = yoffset;
+
+        Matrix4 model;
+        model.rotateY(-HorizontalAngle);
+        Position = model * Position;
+        Vector3 a(Position.x, 0.0f, Position.z);
+        Vector3 axis = a.cross(WorldUp).normalize();
+        model.identity();
+        model.rotate(-VerticalAngle, axis);
+        Position = model * Position;
+        
         // update Front, Right and Up Vectors using the updated Euler angles
         updateCameraVectors();
     }
@@ -78,18 +88,10 @@ private:
     void updateCameraVectors()
     {
         //calculate new front vector
-        Matrix4 model;
-        model.rotateY(-HorizontalAngle);
-        Position = model * Position;
-        Vector3 a(Position.x, 0.0f, Position.z);
-        Vector3 axis = a.cross(WorldUp).normalize();
-        model.identity();
-        model.rotate(-VerticalAngle, axis);
-        Position = model * Position;
-        
-        Vector3 front = Position;
+        Forward = Position;
+        Forward.normalize();
         //recalculate right and up vectors
-        Right = front.cross(WorldUp).normalize();
-        Up = Right.cross(front).normalize();
+        Right = WorldUp.cross(Forward).normalize();
+        Up = Forward.cross(Right).normalize();
     }
 };

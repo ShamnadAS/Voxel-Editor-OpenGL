@@ -1,6 +1,7 @@
 #include <engine/grid.h>
 #include <math/Matrices.h>
 #include <vector>
+#include <utility/resource_manager.h>
 
 Grid::Grid(Shader &shader, int row, int column, Vector3 color)
 {
@@ -65,6 +66,7 @@ void Grid::Init()
     glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+    ResourceManager::GetShader("gridShader").Use().SetVector3f("color", color);
 }
 
 void Grid::Draw()

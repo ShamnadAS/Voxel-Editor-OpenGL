@@ -11,7 +11,7 @@ Vector3 EngineManager::CastRay(Camera &camera, unsigned int scrWidth, unsigned i
     float yLength = t - ( 2.0f * t * scrMousePos.y / scrHeight );
 
     Vector3 a = camera.Right * xLength + camera.Up * yLength;
-    Vector3 b = n * camera.Front; //use updated camera forward vector instead
+    Vector3 b = -n * camera.Forward; 
     Vector3 direction = a + b;
 
     return direction;
