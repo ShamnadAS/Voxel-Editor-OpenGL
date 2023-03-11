@@ -8,7 +8,7 @@
 
 // Default camera values
 const float SPEED = 0.5f;
-const float SENSITIVITY = 0.01f;
+const float SENSITIVITY = 0.05f;
 const float ZOOM = 45.0f;
 
 class Camera
@@ -45,12 +45,13 @@ public:
         return lookAt.CameraLookAt(Position, Target, Up);
     }
 
-    void CameraMovement(float xoffset, float yoffset, float deltaTime)
+    void CameraPanning(float xoffset, float yoffset, float deltaTime)
     {
-        //xoffset *= MouseSensitivity;
+        xoffset *= MouseSensitivity;
         yoffset *= MouseSensitivity;
-        Vector3 movement = Vector3(0.0f, 1.0f, 0.0f) * yoffset;
+        Vector3 movement = Right * -xoffset + Up * -yoffset;
         Position += movement;
+        Target = Position - Forward;
     }
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
@@ -65,7 +66,7 @@ public:
         Vector3 targetToCamera = Position - Target;
         Matrix4 model;
         model.rotateY(-HorizontalAngle);
-        Position = model * targetToCamera;
+        targetToCamera = model * targetToCamera;
         Vector3 a(targetToCamera.x, 0.0f, targetToCamera.z);
         Vector3 axis = a.cross(WorldUp).normalize();
         model.identity();

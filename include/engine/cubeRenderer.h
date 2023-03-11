@@ -7,7 +7,7 @@
 class CubeRenderer
 {
     public:
-    void Draw(Matrix4 &model);
+    void Draw(Vector3 position, Vector3 color);
     CubeRenderer(Shader &shader);
     ~CubeRenderer();
     void Init();

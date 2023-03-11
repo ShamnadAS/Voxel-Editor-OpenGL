@@ -9,6 +9,7 @@ Grid::Grid(Shader &shader, int row, int column, Vector3 color)
     this->row = row;
     this->column = column;
     this->color = color;
+    this->Init();
 }
 
 Grid::~Grid()
@@ -93,17 +94,4 @@ void Grid::Draw()
     }
 
     glBindVertexArray(0);
-}
-
-Vector3 Grid::RayCastHit(Camera &camera, float scrWidth, float scrHeight, float n, Vector2 &scrMousePos)
-{
-    EngineManager manager;
-    Vector3 direction = manager.CastRay(camera, scrWidth, scrHeight, n, scrMousePos);
-    float alpha = -camera.Position.y / direction.y;
-    Vector3 hitPos;
-    hitPos.x = camera.Position.x + (alpha) * direction.x;
-    hitPos.y = 0.0f;
-    hitPos.z = camera.Position.z + (alpha) * direction.z;
-
-    return hitPos;
 }

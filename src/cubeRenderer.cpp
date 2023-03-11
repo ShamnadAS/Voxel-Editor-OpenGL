@@ -3,6 +3,7 @@
 CubeRenderer::CubeRenderer(Shader &shader)
 {
     this->shader = shader;
+	this->Init();
 }
 CubeRenderer::~CubeRenderer()
 {
@@ -17,7 +18,7 @@ void CubeRenderer::Init()
 		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
 		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
 		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,	
 
 		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
 		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
@@ -73,10 +74,13 @@ void CubeRenderer::Init()
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
-void CubeRenderer::Draw(Matrix4 &model)
+void CubeRenderer::Draw(Vector3 position, Vector3 color)
 {
     shader.Use();
+	Matrix4 model;
+	model.translate(position);
 	shader.SetMatrix4("model", model);
+	shader.SetVector3f("color", color);
     glBindVertexArray(this->VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
