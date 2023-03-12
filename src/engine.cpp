@@ -7,6 +7,7 @@
 #include <engine/grid.h>
 #include <engine/engineManager.h>
 #include <engine/cube.h>
+using namespace std;
 
 CubeRenderer *Renderer;
 Grid *Mygrid;
@@ -81,33 +82,42 @@ void Engine::ProcessInput(float dt)
     if(Buttons[GLFW_MOUSE_BUTTON_LEFT])
     {
         Vector2 scrMousePos(MousePosX, MousePosY);
-        Vector3 position;
+        Vector3 position(0.0f, 0.0f, 0.0f);
         Vector3 color(1.0f, 1.0f, 1.0f);
         bool cubePlaced = false;
+        float t = 1000.0f;
 
         for(auto &cube : cubes)
         {
-            position = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cube);
-            if(position != Vector3(0.0f, 0.0f, 0.0f))
+            //position = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cube);
+            std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cube);
+
+            if(get<0>(rayhit) != Vector3(0.0f, 0.0f, 0.0f) && t > std::get<1>(rayhit))
             {
-                cubePlaced = false;
-                for(auto &cube : cubes)
-                {
-                    if(position == cube.Position)
-                    {
-                        cubePlaced = true;
-                        break;
-                    }
-                }
-                if(!cubePlaced)
-                {
-                    color = position / Mygrid->row;
-                    Cube cube1(position, color);
-                    cubes.push_back(cube1); 
-                    cubePlaced = true;
-                }
+                position = std::get<0>(rayhit);
+                t = std::get<1>(rayhit);
             }
         }
+
+        if(position !=  Vector3(0.0f, 0.0f, 0.0f))
+        {
+            for(auto &cube : cubes)
+            {
+                if(position == cube.Position)
+                {
+                    cubePlaced = true;
+                    break;
+                }
+            }
+
+            if(!cubePlaced)
+            {
+                Cube cube1(position, color);
+                cubes.push_back(cube1); 
+                cubePlaced = true;
+            }
+        }
+       
 
         Vector3 hitPos = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos);
 
@@ -120,6 +130,7 @@ void Engine::ProcessInput(float dt)
             modf(hitPos.z, &intPart);
             position.z = intPart + 0.5f;
             position.y = 0.5f;
+
             for(auto &cube : cubes)
             {
                 if(position == cube.Position)
@@ -130,7 +141,6 @@ void Engine::ProcessInput(float dt)
             }
             if(!cubePlaced)
             {
-                color = position / Mygrid->row;
                 Cube cube(position, color);
                 cubes.push_back(cube);
             }

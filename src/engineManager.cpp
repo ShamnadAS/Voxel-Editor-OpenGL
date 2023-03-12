@@ -1,4 +1,6 @@
 #include<engine/engineManager.h>
+#include<tuple>
+using namespace std;
 
 Vector3 Normal[] = 
 {
@@ -41,33 +43,39 @@ Vector3 EngineManager::RayCastHit(Camera &camera, float scrWidth, float scrHeigh
     return value;
 }
 
-Vector3 EngineManager::RayCastHit(Camera &camera, float scrWidth, float scrHeight, float n, Vector2 &scrMousePos, Cube &cube)
+tuple<Vector3,float> EngineManager::RayCastHit(Camera &camera, float scrWidth, float scrHeight, float n, Vector2 &scrMousePos, Cube &cube)
 {
     Vector3 value(0.0f, 0.0f, 0.0f);
+    unsigned normIndex = -1;    
+    float tValue = 0.0f;
+    float rayLenght = 1000.0f;
 
     for (unsigned i = 0; i < 6; i++)
     {
         Vector3 direction = CastRay(camera, scrWidth, scrHeight, n, scrMousePos);
-        float cosine = Normal[i].dot(-direction);
-    
-        if(cosine > 0)
+        Vector3 face = cube.Position + ( Normal[i] * 0.5f );
+        float t = (face -  camera.Position).dot(Normal[i]) / direction.dot(Normal[i]);
+
+        if( t > 0)
         {
-            Vector3 face = cube.Position + ( Normal[i] * 0.5f );
-            float t = (face -  camera.Position).dot(Normal[i]) / direction.dot(Normal[i]);
-            
-            if( t > 0)
+            Vector3 hitPos = camera.Position + ( t * direction);
+            Vector3 hitPosFace = hitPos - face;
+        
+            if(abs(hitPosFace.x) < 0.5f && abs(hitPosFace.y) < 0.5f && abs(hitPosFace.z) < 0.5f && rayLenght > t)
             {
-                Vector3 hitPos = camera.Position + ( t * direction);
-                Vector3 hitPosFace = hitPos - face;
-            
-                if(abs(hitPosFace.x) < 0.5f && abs(hitPosFace.y) < 0.5f && abs(hitPosFace.z) < 0.5f)
-                {
-                    value = face + Normal[i] / 2.0f;
-                    break;
-                }
+                rayLenght = t;
+                normIndex = i;
+                tValue = t;
             }
         }
     }
 
-    return value;
+    if(normIndex != -1)
+    {
+        value = cube.Position + Normal[normIndex];
+    }
+
+    tuple<Vector3,float> result;
+    result = make_tuple(value, tValue);
+    return result;
 }
