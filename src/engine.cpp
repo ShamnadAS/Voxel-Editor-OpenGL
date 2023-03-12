@@ -81,21 +81,45 @@ void Engine::ProcessInput(float dt)
     if(Buttons[GLFW_MOUSE_BUTTON_LEFT])
     {
         Vector2 scrMousePos(MousePosX, MousePosY);
-        Vector3 hitPos = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos);
         Vector3 position;
         Vector3 color(1.0f, 1.0f, 1.0f);
+        bool cubePlaced = false;
+
+        for(auto &cube : cubes)
+        {
+            position = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cube);
+            if(position != Vector3(0.0f, 0.0f, 0.0f))
+            {
+                cubePlaced = false;
+                for(auto &cube : cubes)
+                {
+                    if(position == cube.Position)
+                    {
+                        cubePlaced = true;
+                        break;
+                    }
+                }
+                if(!cubePlaced)
+                {
+                    color = position / Mygrid->row;
+                    Cube cube1(position, color);
+                    cubes.push_back(cube1); 
+                    cubePlaced = true;
+                }
+            }
+        }
+
+        Vector3 hitPos = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos);
 
         if(hitPos.x > 0 && hitPos.x < Mygrid->column * Mygrid->cellSize 
         && hitPos.z > 0 && hitPos.z < Mygrid->row * Mygrid->cellSize)
         {
-
             float intPart;
             modf(hitPos.x, &intPart);
             position.x = intPart + 0.5f;
             modf(hitPos.z, &intPart);
             position.z = intPart + 0.5f;
             position.y = 0.5f;
-            bool cubePlaced = false;
             for(auto &cube : cubes)
             {
                 if(position == cube.Position)
@@ -111,18 +135,8 @@ void Engine::ProcessInput(float dt)
                 cubes.push_back(cube);
             }
         }
-
-        for(auto &cube : cubes)
-        {
-            hitPos = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cube);
-            if(hitPos != Vector3(0.0f, 0.0f, 0.0f))
-            {
-                color = hitPos / Mygrid->row;
-                Cube cube1(hitPos, color);
-                cubes.push_back(cube1); 
-            }
-            std::cout << hitPos << std::endl;
-        }
+  
+        //std::cout << cubes.size() << std::endl;
     }
 
     if(IsMouseScrolling)

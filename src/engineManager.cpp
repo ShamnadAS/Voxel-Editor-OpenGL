@@ -1,6 +1,6 @@
 #include<engine/engineManager.h>
 
-Vector3 cubeNormal[] = 
+Vector3 Normal[] = 
 {
     Vector3(1.0f, 0.0f, 0.0f),  //right
     Vector3(-1.0f, 0.0f, 0.0f), //left
@@ -30,27 +30,44 @@ Vector3 EngineManager::CastRay(Camera &camera, unsigned int scrWidth, unsigned i
 //Hit position on the grid
 Vector3 EngineManager::RayCastHit(Camera &camera, float scrWidth, float scrHeight, float n, Vector2 &scrMousePos)
 {
+    Vector3 value(0.0f, 0.0f, 0.0f);
     Vector3 direction = CastRay(camera, scrWidth, scrHeight, n, scrMousePos);
     float t = -camera.Position.y / direction.y;
-    Vector3 hitPos;
-    hitPos = camera.Position + ( t * direction );
-    return hitPos;
+    if( t > 0)
+    {
+        value = camera.Position + ( t * direction );
+    }
+    
+    return value;
 }
 
 Vector3 EngineManager::RayCastHit(Camera &camera, float scrWidth, float scrHeight, float n, Vector2 &scrMousePos, Cube &cube)
 {
-    Vector3 direction = CastRay(camera, scrWidth, scrHeight, n, scrMousePos);
-    Vector3 normal(0.0f, 1.0f, 0.0f);
-    Vector3 face = cube.Position + ( normal * 0.5f );
-    float t = (face -  camera.Position).dot(normal) / direction.dot(normal);
-    Vector3 hitPos = camera.Position + ( t * direction);
-    Vector3 hitPosFace = hitPos - face;
-    
     Vector3 value(0.0f, 0.0f, 0.0f);
-    if(abs(hitPosFace.x) < 0.5f && abs(hitPosFace.z) < 0.5f)
+
+    for (unsigned i = 0; i < 6; i++)
     {
-        value = face + normal / 2.0f;
-    }
+        Vector3 direction = CastRay(camera, scrWidth, scrHeight, n, scrMousePos);
+        float cosine = Normal[i].dot(-direction);
     
+        if(cosine > 0)
+        {
+            Vector3 face = cube.Position + ( Normal[i] * 0.5f );
+            float t = (face -  camera.Position).dot(Normal[i]) / direction.dot(Normal[i]);
+            
+            if( t > 0)
+            {
+                Vector3 hitPos = camera.Position + ( t * direction);
+                Vector3 hitPosFace = hitPos - face;
+            
+                if(abs(hitPosFace.x) < 0.5f && abs(hitPosFace.y) < 0.5f && abs(hitPosFace.z) < 0.5f)
+                {
+                    value = face + Normal[i] / 2.0f;
+                    break;
+                }
+            }
+        }
+    }
+
     return value;
 }
