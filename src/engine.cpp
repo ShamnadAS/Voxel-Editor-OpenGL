@@ -47,7 +47,6 @@ void Engine::Init()
    MyCamera->Target = Vector3(targetX, 0.0f, targetZ);
 
    Renderer = new CubeRenderer(cubeShader);
-   EngineManager::SetValues(Width, Height, 0.1f, *MyCamera);
 
    Debug();
 }
@@ -83,19 +82,46 @@ void Engine::ProcessInput(float dt)
     {
         Vector2 scrMousePos(MousePosX, MousePosY);
         Vector3 hitPos = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos);
+        Vector3 position;
+        Vector3 color(1.0f, 1.0f, 1.0f);
+
         if(hitPos.x > 0 && hitPos.x < Mygrid->column * Mygrid->cellSize 
         && hitPos.z > 0 && hitPos.z < Mygrid->row * Mygrid->cellSize)
         {
-            Vector3 position;
-            Vector3 color(1.0f, 1.0f, 1.0f);
+
             float intPart;
             modf(hitPos.x, &intPart);
             position.x = intPart + 0.5f;
             modf(hitPos.z, &intPart);
             position.z = intPart + 0.5f;
             position.y = 0.5f;
-            Cube cube(position, color);
-            cubes.push_back(cube);
+            bool cubePlaced = false;
+            for(auto &cube : cubes)
+            {
+                if(position == cube.Position)
+                {
+                    cubePlaced = true;
+                    break;
+                }
+            }
+            if(!cubePlaced)
+            {
+                color = position / Mygrid->row;
+                Cube cube(position, color);
+                cubes.push_back(cube);
+            }
+        }
+
+        for(auto &cube : cubes)
+        {
+            hitPos = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cube);
+            if(hitPos != Vector3(0.0f, 0.0f, 0.0f))
+            {
+                color = hitPos / Mygrid->row;
+                Cube cube1(hitPos, color);
+                cubes.push_back(cube1); 
+            }
+            std::cout << hitPos << std::endl;
         }
     }
 
@@ -115,19 +141,19 @@ void Engine::Render()
     }
    
     //Debug
-    // Shader debugShader = ResourceManager::GetShader("debugShader");
-    // debugShader.Use();
-    // Matrix4 debugModel;
-    // debugModel.scale(Mygrid->row / 2.0f);
-    // debugShader.SetMatrix4("model", debugModel);
-    // glBindVertexArray(debugVAO);
-    // debugShader.SetVector3f("color", Vector3(1.0f, 0.41f, 0.41f));
-    // glDrawArrays(GL_LINES, 0, 2);
+    Shader debugShader = ResourceManager::GetShader("debugShader");
+    debugShader.Use();
+    Matrix4 debugModel;
+    debugModel.scale(Mygrid->row / 2.0f);
+    debugShader.SetMatrix4("model", debugModel);
+    glBindVertexArray(debugVAO);
+    debugShader.SetVector3f("color", Vector3(1.0f, 0.41f, 0.41f));
+    glDrawArrays(GL_LINES, 0, 2);
 
-    // debugShader.SetVector3f("color", Vector3(0.30f, 0.59f, 1.0f));
-    // debugModel.rotateY(-90.0f);
-    // debugShader.SetMatrix4("model", debugModel);
-    // glDrawArrays(GL_LINES, 0, 2);
+    debugShader.SetVector3f("color", Vector3(0.30f, 0.59f, 1.0f));
+    debugModel.rotateY(-90.0f);
+    debugShader.SetMatrix4("model", debugModel);
+    glDrawArrays(GL_LINES, 0, 2);
 }
 
 void Debug()

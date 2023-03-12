@@ -24,18 +24,33 @@ Vector3 EngineManager::CastRay(Camera &camera, unsigned int scrWidth, unsigned i
     Vector3 b = -n * camera.Forward; 
     Vector3 direction = a + b;
 
-    return direction;
+    return direction.normalize();
 }   
 
 //Hit position on the grid
 Vector3 EngineManager::RayCastHit(Camera &camera, float scrWidth, float scrHeight, float n, Vector2 &scrMousePos)
 {
     Vector3 direction = CastRay(camera, scrWidth, scrHeight, n, scrMousePos);
-    float alpha = -camera.Position.y / direction.y;
+    float t = -camera.Position.y / direction.y;
     Vector3 hitPos;
-    hitPos.x = camera.Position.x + (alpha) * direction.x;
-    hitPos.y = 0.0f;
-    hitPos.z = camera.Position.z + (alpha) * direction.z;
-
+    hitPos = camera.Position + ( t * direction );
     return hitPos;
+}
+
+Vector3 EngineManager::RayCastHit(Camera &camera, float scrWidth, float scrHeight, float n, Vector2 &scrMousePos, Cube &cube)
+{
+    Vector3 direction = CastRay(camera, scrWidth, scrHeight, n, scrMousePos);
+    Vector3 normal(0.0f, 1.0f, 0.0f);
+    Vector3 face = cube.Position + ( normal * 0.5f );
+    float t = (face -  camera.Position).dot(normal) / direction.dot(normal);
+    Vector3 hitPos = camera.Position + ( t * direction);
+    Vector3 hitPosFace = hitPos - face;
+    
+    Vector3 value(0.0f, 0.0f, 0.0f);
+    if(abs(hitPosFace.x) < 0.5f && abs(hitPosFace.z) < 0.5f)
+    {
+        value = face + normal / 2.0f;
+    }
+    
+    return value;
 }
