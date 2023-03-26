@@ -117,7 +117,6 @@ void Engine::ProcessInput(float dt)
                 cubePlaced = true;
             }
         }
-       
 
         Vector3 hitPos = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos);
 
@@ -147,6 +146,29 @@ void Engine::ProcessInput(float dt)
         }
   
         //std::cout << cubes.size() << std::endl;
+    }
+
+    if(Buttons[GLFW_MOUSE_BUTTON_RIGHT])
+    {
+        Vector2 scrMousePos(MousePosX, MousePosY);
+        float t = 1000.0f;
+        int index = -1;
+
+        for (unsigned i = 0; i < cubes.size(); i++)
+        {
+            std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cubes[i]);
+
+            if(get<0>(rayhit) != Vector3(0.0f, 0.0f, 0.0f) && t > std::get<1>(rayhit))
+            {
+                t = std::get<1>(rayhit);
+                index = i;
+            }  
+        }
+        
+        if(index != -1)
+        {
+            cubes.erase(cubes.begin() + index);
+        }
     }
 
     if(IsMouseScrolling)

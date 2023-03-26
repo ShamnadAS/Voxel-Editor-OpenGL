@@ -86,6 +86,7 @@ int main(int argc, char *argv[])
         VoxelEngine.IsMouseMoving = false;
         VoxelEngine.IsMouseScrolling = false;
         VoxelEngine.Buttons[0] = false;
+        VoxelEngine.Buttons[1] = false;
         // update game state
         // -----------------
         VoxelEngine.Update(deltaTime);
