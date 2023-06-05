@@ -4,6 +4,10 @@
 #include <engine/engine.h>
 #include <utility/resource_manager.h>
 
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
+
 #include <iostream>
 
 // GLFW function declarations
@@ -14,9 +18,9 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 // The Width of the screen
-const unsigned int SCREEN_WIDTH = 800;
+const unsigned int SCREEN_WIDTH = 1920;
 // The height of the screen
-const unsigned int SCREEN_HEIGHT = 600;
+const unsigned int SCREEN_HEIGHT = 1080;
 //Mouse Input
 float lastX = 400, lastY = 300;
 bool firstMouse = true;
@@ -71,6 +75,20 @@ int main(int argc, char *argv[])
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;    
+
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 460");
+
+    bool drawMode = true;
+    ImVec4 color1 = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImVec4 color2 = ImVec4(0.0f, 0.55f, 0.60f, 1.00f);
+    
     while (!glfwWindowShouldClose(window))
     {
         // calculate delta time
@@ -80,9 +98,26 @@ int main(int argc, char *argv[])
         lastFrame = currentFrame;
         glfwPollEvents();
 
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::Begin("Toolbar");
+        if (ImGui::Button("Draw"))
+            drawMode = true;
+        if (ImGui::Button("Erase"))
+            drawMode = false;
+        ImGui::End();
+
+        ImGui::Begin("Color selector");
+        ImGui::ColorEdit3("clear color", (float*)&color1);
+        ImGui::End();
+
         // manage user input
         // -----------------
-        VoxelEngine.ProcessInput(deltaTime);
+        Vector3 color = Vector3(color1.x, color1.y, color1.z);
+        VoxelEngine.ProcessInput(deltaTime, color);
         VoxelEngine.IsMouseMoving = false;
         VoxelEngine.IsMouseScrolling = false;
         VoxelEngine.Buttons[0] = false;
@@ -95,7 +130,10 @@ int main(int argc, char *argv[])
         // ------
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
         VoxelEngine.Render();
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
     }
@@ -103,6 +141,11 @@ int main(int argc, char *argv[])
     // delete all resources as loaded using the resource manager
     // ---------------------------------------------------------
     ResourceManager::Clear();
+
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glfwTerminate();
     return 0;

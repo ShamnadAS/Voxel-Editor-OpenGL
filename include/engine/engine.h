@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <math/Vectors.h>
 
 class Engine
 {
@@ -24,7 +25,7 @@ public:
 
     void Init();
     // game loop
-    void ProcessInput(float dt);
+    void ProcessInput(float dt, Vector3 &color);
     void Update(float dt);
     void Render();
 };

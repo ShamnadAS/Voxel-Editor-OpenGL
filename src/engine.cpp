@@ -65,7 +65,7 @@ void Engine::Update(float dt)
     ResourceManager::GetShader("debugShader").Use().SetMatrix4("view", view);
 }
 
-void Engine::ProcessInput(float dt)
+void Engine::ProcessInput(float dt, Vector3 &color)
 {
     if(IsMouseMoving)
     {   
@@ -83,7 +83,7 @@ void Engine::ProcessInput(float dt)
     {
         Vector2 scrMousePos(MousePosX, MousePosY);
         Vector3 position(0.0f, 0.0f, 0.0f);
-        Vector3 color(1.0f, 1.0f, 1.0f);
+        //Vector3 color(1.0f, 1.0f, 1.0f);
         bool cubePlaced = false;
         float t = 1000.0f;
 
