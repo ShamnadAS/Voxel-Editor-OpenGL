@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-    glfwWindowHint(GLFW_RESIZABLE, false);
+    //glfwWindowHint(GLFW_RESIZABLE, false);
 
     GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "VoxelEngine", nullptr, nullptr);
     glfwMakeContextCurrent(window);
@@ -49,15 +49,17 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    //input callbacks
     glfwSetKeyCallback(window, key_callback);
-    glfwSetFramebufferSizeCallback(window, framebuffers_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
 
+    glfwSetFramebufferSizeCallback(window, framebuffers_size_callback); //check online
+
     // OpenGL configuration
     // --------------------
-    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    //glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -75,19 +77,37 @@ int main(int argc, char *argv[])
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+   // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+    //io.ConfigViewportsNoAutoMerge = true;
+    //io.ConfigViewportsNoTaskBarIcon = true;
 
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;    
-
+    // Setup Dear ImGui style
     ImGui::StyleColorsDark();
+    //ImGui::StyleColorsLight();
+
+    // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+    ImGuiStyle& style = ImGui::GetStyle();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        style.WindowRounding = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
+
+    // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 460");
 
-    bool drawMode = true;
-    ImVec4 color1 = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    ImVec4 color2 = ImVec4(0.0f, 0.55f, 0.60f, 1.00f);
+    // Our state
+    bool show_demo_window = true;
+    bool show_another_window = false;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     
     while (!glfwWindowShouldClose(window))
     {
@@ -103,37 +123,51 @@ int main(int argc, char *argv[])
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::Begin("Toolbar");
-        if (ImGui::Button("Draw"))
-            drawMode = true;
-        if (ImGui::Button("Erase"))
-            drawMode = false;
+        // if (show_demo_window)
+        // {
+        //     ImGui::ShowDemoWindow(&show_demo_window);
+        // }
+        ImGui::Begin("Debug");
+        ImGui::Text("Mouse posX: %.f , MousePosY: %.f",VoxelEngine.MousePosX, VoxelEngine.MousePosY);
         ImGui::End();
 
-        ImGui::Begin("Color selector");
-        ImGui::ColorEdit3("clear color", (float*)&color1);
-        ImGui::End();
+        //update the screen dimensions
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        VoxelEngine.Width = display_w;
+        VoxelEngine.Height = display_h;
 
         // manage user input
         // -----------------
-        Vector3 color = Vector3(color1.x, color1.y, color1.z);
+        Vector3 color = Vector3(1.0f, 1.0f, 1.0f);
         VoxelEngine.ProcessInput(deltaTime, color);
         VoxelEngine.IsMouseMoving = false;
         VoxelEngine.IsMouseScrolling = false;
         VoxelEngine.Buttons[0] = false;
         VoxelEngine.Buttons[1] = false;
+
         // update game state
         // -----------------
         VoxelEngine.Update(deltaTime);
 
         // render
         // ------
+        ImGui::Render();
+        
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         
         VoxelEngine.Render();
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            GLFWwindow* backup_current_context = glfwGetCurrentContext();
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+            glfwMakeContextCurrent(backup_current_context);
+        }
 
         glfwSwapBuffers(window);
     }
