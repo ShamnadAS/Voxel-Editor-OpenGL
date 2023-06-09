@@ -60,22 +60,31 @@ public:
         xoffset *= MouseSensitivity;
         yoffset *= MouseSensitivity;
 
-        HorizontalAngle = xoffset;
-        VerticalAngle = yoffset;
-
-        Vector3 targetToCamera = Position - Target;
+        Vector3 targetToCamera = Position - Target; 
         Matrix4 model;
-        model.rotateY(-HorizontalAngle);
+        model.rotateY(-xoffset);
         targetToCamera = model * targetToCamera;
         Vector3 a(targetToCamera.x, 0.0f, targetToCamera.z);
-        Vector3 axis = a.cross(WorldUp).normalize();
+        Vector3 axis = a.cross(WorldUp).normalize(); //camera's right vector
         model.identity();
-        model.rotate(-VerticalAngle, axis);
+        model.rotate(-yoffset, axis);
         targetToCamera = model * targetToCamera;
-        Position = Target + targetToCamera;
         
+        Vector3 forward = targetToCamera;
+        forward.normalize();
         // update Front, Right and Up Vectors using the updated Euler angles
-        updateCameraVectors();
+        if(forward.dot(WorldUp) < 0.999f && forward.dot(-WorldUp) < 0.999f)
+        {
+            Position = Target + targetToCamera;
+            updateCameraVectors();
+        }
+    }
+
+    void CameraMoveAlongForwardAxis(float yoffset)
+    {
+        Matrix4 model;
+        model.translate(Forward * -yoffset);
+        Position = model * Position;
     }
 
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis

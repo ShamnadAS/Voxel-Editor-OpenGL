@@ -10,6 +10,7 @@ public:
 
     bool                    Keys[1024];
     bool                    Buttons[3];
+    unsigned int            ToolState;
     bool                    IsMouseMoving;
     bool                    IsMouseScrolling;
     unsigned int            Width, Height;

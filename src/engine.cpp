@@ -19,7 +19,7 @@ std::vector<Cube> cubes;
 void Debug();   
 
 Engine::Engine(unsigned int width, unsigned int height)
-    : Keys(), Buttons(), Width(width), Height(height), IsMouseMoving(false), IsMouseScrolling(false)
+    : Keys(), Buttons(), Width(width), Height(height), IsMouseMoving(false), IsMouseScrolling(false),ToolState(0)
 {
 }
 
@@ -49,13 +49,13 @@ void Engine::Init()
 
    Renderer = new CubeRenderer(cubeShader);
 
-   Debug();
+   //Debug();
 }
 
 void Engine::Update(float dt)
 {
     Matrix4 view = MyCamera->GetViewMatrix();
-
+ 
     Matrix4 projection = Matrix4().perspective(MyCamera->Zoom, (float)Width/(float)Height, 1000.0f, 0.01f);
     ResourceManager::GetShader("cubeShader").Use().SetMatrix4("projection", projection);
     ResourceManager::GetShader("cubeShader").Use().SetMatrix4("view", view);
@@ -82,98 +82,114 @@ void Engine::ProcessInput(float dt, Vector3 &color)
     if(Buttons[GLFW_MOUSE_BUTTON_LEFT])
     {
         Vector2 scrMousePos(MousePosX, MousePosY);
-        Vector3 position(0.0f, 0.0f, 0.0f);
-        //Vector3 color(1.0f, 1.0f, 1.0f);
-        bool cubePlaced = false;
         float t = 1000.0f;
 
-        for(auto &cube : cubes)
+        switch (ToolState)
         {
-            //position = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cube);
-            std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cube);
-
-            if(get<0>(rayhit) != Vector3(0.0f, 0.0f, 0.0f) && t > std::get<1>(rayhit))
-            {
-                position = std::get<0>(rayhit);
-                t = std::get<1>(rayhit);
-            }
-        }
-
-        if(position !=  Vector3(0.0f, 0.0f, 0.0f))
+        case 0:
         {
-            for(auto &cube : cubes)
-            {
-                if(position == cube.Position)
-                {
-                    cubePlaced = true;
-                    break;
-                }
-            }
-
-            if(!cubePlaced)
-            {
-                Cube cube1(position, color);
-                cubes.push_back(cube1); 
-                cubePlaced = true;
-            }
-        }
-
-        Vector3 hitPos = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos);
-
-        if(hitPos.x > 0 && hitPos.x < Mygrid->column * Mygrid->cellSize 
-        && hitPos.z > 0 && hitPos.z < Mygrid->row * Mygrid->cellSize)
-        {
-            float intPart;
-            modf(hitPos.x, &intPart);
-            position.x = intPart + 0.5f;
-            modf(hitPos.z, &intPart);
-            position.z = intPart + 0.5f;
-            position.y = 0.5f;
+            Vector3 position(0.0f, 0.0f, 0.0f);
+            //Vector3 color(1.0f, 1.0f, 1.0f);
+            bool cubePlaced = false;
 
             for(auto &cube : cubes)
             {
-                if(position == cube.Position)
+                //position = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cube);
+                std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cube);
+
+                if(get<0>(rayhit) != Vector3(0.0f, 0.0f, 0.0f) && t > std::get<1>(rayhit))
                 {
-                    cubePlaced = true;
-                    break;
+                    position = std::get<0>(rayhit);
+                    t = std::get<1>(rayhit);
                 }
             }
-            if(!cubePlaced)
+
+            if(position !=  Vector3(0.0f, 0.0f, 0.0f))
             {
-                Cube cube(position, color);
-                cubes.push_back(cube);
+                for(auto &cube : cubes)
+                {
+                    if(position == cube.Position)
+                    {
+                        cubePlaced = true;
+                        break;
+                    }
+                }
+
+                if(!cubePlaced)
+                {
+                    Cube cube1(position, color);
+                    cubes.push_back(cube1); 
+                    cubePlaced = true;
+                }
             }
+
+            Vector3 hitPos = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos);
+
+            if(hitPos.x > 0 && hitPos.x < Mygrid->column * Mygrid->cellSize 
+            && hitPos.z > 0 && hitPos.z < Mygrid->row * Mygrid->cellSize)
+            {
+                float intPart;
+                modf(hitPos.x, &intPart);
+                position.x = intPart + 0.5f;
+                modf(hitPos.z, &intPart);
+                position.z = intPart + 0.5f;
+                position.y = 0.5f;
+
+                for(auto &cube : cubes)
+                {
+                    if(position == cube.Position)
+                    {
+                        cubePlaced = true;
+                        break;
+                    }
+                }
+                if(!cubePlaced)
+                {
+                    Cube cube(position, color);
+                    cubes.push_back(cube);
+                }
+            }
+            break;
         }
-  
-        //std::cout << cubes.size() << std::endl;
+
+        case 1:
+        {
+            int index = -1;
+            for (unsigned i = 0; i < cubes.size(); i++)
+            {
+                std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cubes[i]);
+
+                if(get<0>(rayhit) != Vector3(0.0f, 0.0f, 0.0f) && t > std::get<1>(rayhit))
+                {
+                    t = std::get<1>(rayhit);
+                    index = i;
+                }  
+            }
+            
+            if(index != -1)
+            {
+                cubes.erase(cubes.begin() + index);
+            }
+            break;
+        }
+           
+        case 2:
+            //paint tool
+            break;
+        default:
+            break;
+        }
     }
 
     if(Buttons[GLFW_MOUSE_BUTTON_RIGHT])
     {
-        Vector2 scrMousePos(MousePosX, MousePosY);
-        float t = 1000.0f;
-        int index = -1;
-
-        for (unsigned i = 0; i < cubes.size(); i++)
-        {
-            std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cubes[i]);
-
-            if(get<0>(rayhit) != Vector3(0.0f, 0.0f, 0.0f) && t > std::get<1>(rayhit))
-            {
-                t = std::get<1>(rayhit);
-                index = i;
-            }  
-        }
-        
-        if(index != -1)
-        {
-            cubes.erase(cubes.begin() + index);
-        }
+        //camera panning
     }
 
     if(IsMouseScrolling)
     {
-        MyCamera->CameraZoom(MouseScroll);
+        //MyCamera->CameraZoom(MouseScroll);
+        MyCamera->CameraMoveAlongForwardAxis(MouseScroll);
     }
 }
 

@@ -10,6 +10,9 @@
 
 #include <iostream>
 
+//pointers
+UI *myUI;
+
 // GLFW function declarations
 void framebuffers_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -77,32 +80,9 @@ int main(int argc, char *argv[])
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-   // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
-    //io.ConfigViewportsNoAutoMerge = true;
-    //io.ConfigViewportsNoTaskBarIcon = true;
-
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsLight();
-
-    // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-    ImGuiStyle& style = ImGui::GetStyle();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-        style.WindowRounding = 0.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-    }
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 460");
+    // Setup Dear ImGui context
+    myUI = new UI(VoxelEngine);
+    myUI->OnCreate("#version 460", window);
 
     // Our state
     bool show_demo_window = true;
@@ -119,18 +99,11 @@ int main(int argc, char *argv[])
         glfwPollEvents();
 
         // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        // if (show_demo_window)
-        // {
-        //     ImGui::ShowDemoWindow(&show_demo_window);
-        // }
-        ImGui::Begin("Debug");
-        ImGui::Text("Mouse posX: %.f , MousePosY: %.f",VoxelEngine.MousePosX, VoxelEngine.MousePosY);
-        ImGui::End();
-
+        myUI->OnBegin();
+        
+        myUI->ToolBar();
+        //myUI->ColorPalette();
+       
         //update the screen dimensions
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
@@ -153,21 +126,11 @@ int main(int argc, char *argv[])
 
         // render
         // ------
-        ImGui::Render();
-        
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         
         VoxelEngine.Render();
-
-        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
-            GLFWwindow* backup_current_context = glfwGetCurrentContext();
-            ImGui::UpdatePlatformWindows();
-            ImGui::RenderPlatformWindowsDefault();
-            glfwMakeContextCurrent(backup_current_context);
-        }
+        myUI->Render();
 
         glfwSwapBuffers(window);
     }
