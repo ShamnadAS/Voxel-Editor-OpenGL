@@ -11,11 +11,11 @@
 
 #include <map>
 #include <string>
-
+#include <vector>
 #include <glad/glad.h>
-
 #include <utility/texture.h>
 #include <utility/shader.h>
+using namespace std;
 
 
 // A static singleton ResourceManager class that hosts several
@@ -37,6 +37,8 @@ public:
     static Texture2D LoadTexture(const char *file, bool alpha, std::string name);
     // retrieves a stored texture
     static Texture2D GetTexture(std::string name);
+    //loads color palette
+    static vector<Vector3> LoadColorPalette(const char *file, std::string name);
     // properly de-allocates all loaded resources
     static void      Clear();
 private:

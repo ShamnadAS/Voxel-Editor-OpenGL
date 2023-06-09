@@ -41,6 +41,41 @@ Texture2D ResourceManager::GetTexture(std::string name)
     return Textures[name];
 }
 
+vector<Vector3> ResourceManager::LoadColorPalette(const char *file, std::string name)
+{
+    vector<Vector3> palette;
+    int width, height, nrChannels;
+    unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 3);
+    
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            unsigned char* pixelOffset = data + (width * i + j) * 3;
+            unsigned char r = pixelOffset[0];
+            unsigned char g = pixelOffset[1];
+            unsigned char b = pixelOffset[2];
+
+            Vector3 pixelRgb = Vector3(r, g, b);
+            bool colorPresent = false;
+            for(auto &color : palette)
+            {
+                if(pixelRgb == color)
+                {
+                    colorPresent = true;
+                    break;
+                }
+            }
+            if(!colorPresent)
+            {
+                palette.push_back(pixelRgb);
+            }
+        }
+    }
+
+    return palette;
+}
+
 void ResourceManager::Clear()
 {
     // (properly) delete all shaders	

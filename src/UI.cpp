@@ -1,12 +1,16 @@
 #include <engine/UI.h>
 #include <utility/resource_manager.h>
+#include <iostream>
+#include <string>
+using namespace std;
 
 unsigned int pencilID;
 unsigned int eraserID;
 unsigned int paintID;
 
-// bool loadPalette = true;
-// Texture2D loadedPalette;
+ImVec4 color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+bool loadPalette = true;
+vector<ImVec4> imPalette;
 
 void UI::OnCreate(const char* openglVersion, GLFWwindow* window)
 {
@@ -14,16 +18,18 @@ void UI::OnCreate(const char* openglVersion, GLFWwindow* window)
     ResourceManager::LoadTexture("icons/pencil.png", true, "pencil");
     ResourceManager::LoadTexture("icons/eraser.png", true, "eraser");
     ResourceManager::LoadTexture("icons/paint.png", true, "paint");
-    //Load Palettes
-    //ResourceManager::LoadTexture("palette/palette1.png", true, "palette1");
-    //loadedPalette = ResourceManager::GetTexture("palette1");
 
     pencilID = ResourceManager::GetTexture("pencil").ID;
     eraserID = ResourceManager::GetTexture("eraser").ID;
     paintID = ResourceManager::GetTexture("paint").ID;
 
-    //Load shader
-
+    //Load Palettes
+    vector<Vector3> palette = ResourceManager::LoadColorPalette("palette/palette 2.png", "palette1");
+    for(auto &color : palette)
+    {
+        ImVec4 imColor = ImVec4(color.x / 255.0f, color.y / 255.0f, color.z / 255.0f, 1.0f);
+        imPalette.push_back(imColor);
+    }
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -88,32 +94,42 @@ void UI::ToolBar()
 
     if(ImGui::ImageButton((ImTextureID)pencilID, {32, 32}))
     { 
-        VoxelEngine.ToolState = 0;
+        VoxelEngine.activeTool = 0;
     }
     ImGui::IsItemActive();
     if(ImGui::ImageButton((ImTextureID)eraserID, {32, 32}))
     {
-        VoxelEngine.ToolState = 1;
+        VoxelEngine.activeTool = 1;
     }
     if(ImGui::ImageButton((ImTextureID)paintID, {32, 32}))
     {
-        VoxelEngine.ToolState = 2;
+        VoxelEngine.activeTool = 2;
     }
 
     ImGui::End();
 }
 
-// void UI::ColorPalette()
-// {
-//     if(loadPalette)
-//     {
-//         //load the palette
-//     }
+void UI::ColorPalette()
+{
+    ImGui::Begin("Color Palette");
+    
+    for (int i = 0; i < imPalette.size(); i++)
+    {
+       ImGui::ColorButton("color", imPalette[i]);
+    }
 
-//     ImGui::Begin("Color Palette");
-//     ImGui::Text("Color palette");
-//     ImGui::End();
-// }
+    ImGui::End();
+}
+
+void UI::ColorSelector()
+{
+    ImGui::Begin("Color Selector");
+    if(ImGui::ColorPicker3("Active Color", (float*)&color))
+    {
+        VoxelEngine.activeColor = Vector3(color.x, color.y, color.z);
+    }
+    ImGui::End();
+}
 
 UI::UI(Engine &voxelEngine)
 :VoxelEngine(voxelEngine)

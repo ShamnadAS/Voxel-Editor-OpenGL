@@ -18,6 +18,6 @@ public:
     void OnBegin();
     void Render();
     void ToolBar();
-    //void ColorPalette();
-
+    void ColorPalette();
+    void ColorSelector();
 };

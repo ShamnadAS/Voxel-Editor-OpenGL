@@ -19,7 +19,8 @@ std::vector<Cube> cubes;
 void Debug();   
 
 Engine::Engine(unsigned int width, unsigned int height)
-    : Keys(), Buttons(), Width(width), Height(height), IsMouseMoving(false), IsMouseScrolling(false),ToolState(0)
+    : Keys(), Buttons(), Width(width), Height(height), IsMouseMoving(false), IsMouseScrolling(false),activeTool(0),
+    activeColor(Vector3(1.0f, 1.0f, 1.0f))
 {
 }
 
@@ -65,7 +66,7 @@ void Engine::Update(float dt)
     ResourceManager::GetShader("debugShader").Use().SetMatrix4("view", view);
 }
 
-void Engine::ProcessInput(float dt, Vector3 &color)
+void Engine::ProcessInput(float dt)
 {
     if(IsMouseMoving)
     {   
@@ -84,7 +85,7 @@ void Engine::ProcessInput(float dt, Vector3 &color)
         Vector2 scrMousePos(MousePosX, MousePosY);
         float t = 1000.0f;
 
-        switch (ToolState)
+        switch (activeTool)
         {
         case 0:
         {
@@ -117,7 +118,7 @@ void Engine::ProcessInput(float dt, Vector3 &color)
 
                 if(!cubePlaced)
                 {
-                    Cube cube1(position, color);
+                    Cube cube1(position, activeColor);
                     cubes.push_back(cube1); 
                     cubePlaced = true;
                 }
@@ -145,7 +146,7 @@ void Engine::ProcessInput(float dt, Vector3 &color)
                 }
                 if(!cubePlaced)
                 {
-                    Cube cube(position, color);
+                    Cube cube(position, activeColor);
                     cubes.push_back(cube);
                 }
             }

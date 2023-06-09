@@ -4,9 +4,7 @@
 #include <engine/engine.h>
 #include <utility/resource_manager.h>
 
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h>
+#include <engine/UI.h>
 
 #include <iostream>
 
@@ -102,7 +100,8 @@ int main(int argc, char *argv[])
         myUI->OnBegin();
         
         myUI->ToolBar();
-        //myUI->ColorPalette();
+        myUI->ColorPalette();
+        myUI->ColorSelector();
        
         //update the screen dimensions
         int display_w, display_h;
@@ -113,8 +112,7 @@ int main(int argc, char *argv[])
 
         // manage user input
         // -----------------
-        Vector3 color = Vector3(1.0f, 1.0f, 1.0f);
-        VoxelEngine.ProcessInput(deltaTime, color);
+        VoxelEngine.ProcessInput(deltaTime);
         VoxelEngine.IsMouseMoving = false;
         VoxelEngine.IsMouseScrolling = false;
         VoxelEngine.Buttons[0] = false;

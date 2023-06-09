@@ -10,7 +10,6 @@ public:
 
     bool                    Keys[1024];
     bool                    Buttons[3];
-    unsigned int            ToolState;
     bool                    IsMouseMoving;
     bool                    IsMouseScrolling;
     unsigned int            Width, Height;
@@ -20,13 +19,16 @@ public:
     float                   MousePosX;
     float                   MousePosY;
 
+    unsigned int            activeTool;
+    Vector3                 activeColor;
+
     // constructor/destructor
     Engine(unsigned int width, unsigned int height);
     ~Engine();
 
     void Init();
     // game loop
-    void ProcessInput(float dt, Vector3 &color);
+    void ProcessInput(float dt);
     void Update(float dt);
     void Render();
 };
