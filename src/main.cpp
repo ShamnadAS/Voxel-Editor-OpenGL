@@ -1,12 +1,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
 #include <engine/engine.h>
 #include <utility/resource_manager.h>
-
 #include <engine/UI.h>
-
 #include <iostream>
+#include <utility/frame_buffer.h>
 
 //pointers
 UI *myUI;
@@ -19,14 +17,15 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 // The Width of the screen
-const unsigned int SCREEN_WIDTH = 1920;
+const unsigned int SCREEN_WIDTH = 1366;
 // The height of the screen
-const unsigned int SCREEN_HEIGHT = 1080;
+const unsigned int SCREEN_HEIGHT = 786;
 //Mouse Input
 float lastX = 400, lastY = 300;
 bool firstMouse = true;
 
 Engine VoxelEngine(SCREEN_WIDTH, SCREEN_HEIGHT);
+FrameBuffer *Fbo;
 
 int main(int argc, char *argv[])
 {
@@ -70,6 +69,8 @@ int main(int argc, char *argv[])
     // initialize game
     // ---------------
     VoxelEngine.Init();
+    Fbo = new FrameBuffer();
+    Fbo->Init(800, 600);
 
     // deltaTime variables
     // -------------------
@@ -83,7 +84,7 @@ int main(int argc, char *argv[])
     myUI->OnCreate("#version 460", window);
 
     // Our state
-    bool show_demo_window = true;
+    bool show_demo_window = false;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     
@@ -95,13 +96,6 @@ int main(int argc, char *argv[])
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         glfwPollEvents();
-
-        // Start the Dear ImGui frame
-        myUI->OnBegin();
-        
-        myUI->ToolBar();
-        myUI->ColorPalette();
-        myUI->ColorSelector();
        
         //update the screen dimensions
         int display_w, display_h;
@@ -124,10 +118,24 @@ int main(int argc, char *argv[])
 
         // render
         // ------
+        Fbo->Bind();
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
         VoxelEngine.Render();
+
+        // Start the Dear ImGui frame
+        myUI->OnBegin();
+        if(show_demo_window)
+            ImGui::ShowDemoWindow();
+        ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+        myUI->ToolBar();
+        myUI->ColorPalette();
+        myUI->ColorSelector();
+        myUI->ViewPort(Fbo->textureID);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
         myUI->Render();
 
         glfwSwapBuffers(window);

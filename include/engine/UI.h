@@ -20,4 +20,5 @@ public:
     void ToolBar();
     void ColorPalette();
     void ColorSelector();
+    void ViewPort(unsigned int imageId);
 };

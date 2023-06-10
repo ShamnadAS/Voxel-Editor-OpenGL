@@ -115,7 +115,19 @@ void UI::ColorPalette()
     
     for (int i = 0; i < imPalette.size(); i++)
     {
-       ImGui::ColorButton("color", imPalette[i]);
+        ImGui::PushID(i);
+
+        if ((i % 8) != 0)
+        {
+            ImGui::SameLine(0.0f, ImGui::GetStyle().ItemSpacing.y);
+        }
+        if(ImGui::ColorButton("color", imPalette[i]))
+        {
+            color = imPalette[i];
+            VoxelEngine.activeColor = Vector3(imPalette[i].x, imPalette[i].y, imPalette[i].z);
+        }
+
+        ImGui::PopID();
     }
 
     ImGui::End();
@@ -124,10 +136,17 @@ void UI::ColorPalette()
 void UI::ColorSelector()
 {
     ImGui::Begin("Color Selector");
-    if(ImGui::ColorPicker3("Active Color", (float*)&color))
+    if(ImGui::ColorPicker3("Current", (float*)&color))
     {
         VoxelEngine.activeColor = Vector3(color.x, color.y, color.z);
     }
+    ImGui::End();
+}
+
+void UI::ViewPort(unsigned int imageId)
+{
+    ImGui::Begin("Viewport");
+    ImGui::Image((ImTextureID)imageId, ImVec2(800, 600));
     ImGui::End();
 }
 
