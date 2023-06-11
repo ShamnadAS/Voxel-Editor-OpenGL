@@ -143,11 +143,11 @@ void UI::ColorSelector()
     ImGui::End();
 }
 
-ImVec2 UI::ViewPort(unsigned int imageId, unsigned width, unsigned height)
+ImVec2 UI::ViewPort(unsigned int imageId)
 {
     ImGui::Begin("Viewport");
-    ImVec2 windowSize = ImGui::GetWindowSize();
-    ImGui::Image((ImTextureID)imageId, {width, height}, {0, 1}, {1, 0});
+    ImVec2 windowSize = ImGui::GetContentRegionAvail();
+    ImGui::Image((ImTextureID)imageId, windowSize, {0, 1}, {1, 0});
     ImGui::End();
 
     return windowSize;

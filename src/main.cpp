@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
     bool show_demo_window = false;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImVec2 viewPortSize;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -97,12 +98,20 @@ int main(int argc, char *argv[])
         lastFrame = currentFrame;
         glfwPollEvents();
        
-        //update the screen dimensions
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        VoxelEngine.Width = display_w;
-        VoxelEngine.Height = display_h;
+        // Start the Dear ImGui frame
+        myUI->OnBegin();
+        if(show_demo_window)
+            ImGui::ShowDemoWindow();
+        ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+        myUI->ToolBar();
+        myUI->ColorPalette();
+        myUI->ColorSelector();
+        viewPortSize = myUI->ViewPort(Fbo->textureID);
+        
+        //update the viewport dimension
+        glViewport(0, 0, viewPortSize.x, viewPortSize.y);
+        VoxelEngine.Width = viewPortSize.x;
+        VoxelEngine.Height = viewPortSize.y;
 
         // manage user input
         // -----------------
@@ -121,18 +130,8 @@ int main(int argc, char *argv[])
         Fbo->Bind();
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        Fbo->UpdateDimensions(display_w, display_h);
+        Fbo->UpdateDimensions(viewPortSize.x, viewPortSize.y);
         VoxelEngine.Render();
-
-        // Start the Dear ImGui frame
-        myUI->OnBegin();
-        if(show_demo_window)
-            ImGui::ShowDemoWindow();
-        ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-        myUI->ToolBar();
-        myUI->ColorPalette();
-        myUI->ColorSelector();
-        myUI->ViewPort(Fbo->textureID, display_w, display_h);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);

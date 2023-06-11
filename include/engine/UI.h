@@ -20,5 +20,5 @@ public:
     void ToolBar();
     void ColorPalette();
     void ColorSelector();
-    ImVec2 ViewPort(unsigned int imageId, unsigned width, unsigned height);
+    ImVec2 ViewPort(unsigned int imageId);
 };
