@@ -143,11 +143,14 @@ void UI::ColorSelector()
     ImGui::End();
 }
 
-void UI::ViewPort(unsigned int imageId)
+ImVec2 UI::ViewPort(unsigned int imageId, unsigned width, unsigned height)
 {
     ImGui::Begin("Viewport");
-    ImGui::Image((ImTextureID)imageId, ImVec2(800, 600));
+    ImVec2 windowSize = ImGui::GetWindowSize();
+    ImGui::Image((ImTextureID)imageId, {width, height}, {0, 1}, {1, 0});
     ImGui::End();
+
+    return windowSize;
 }
 
 UI::UI(Engine &voxelEngine)

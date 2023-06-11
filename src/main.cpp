@@ -19,7 +19,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 // The Width of the screen
 const unsigned int SCREEN_WIDTH = 1366;
 // The height of the screen
-const unsigned int SCREEN_HEIGHT = 786;
+const unsigned int SCREEN_HEIGHT = 786; 
 //Mouse Input
 float lastX = 400, lastY = 300;
 bool firstMouse = true;
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     // ---------------
     VoxelEngine.Init();
     Fbo = new FrameBuffer();
-    Fbo->Init(800, 600);
+    Fbo->Init(1366, 786);
 
     // deltaTime variables
     // -------------------
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
     bool show_demo_window = false;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    
+
     while (!glfwWindowShouldClose(window))
     {
         // calculate delta time
@@ -121,6 +121,7 @@ int main(int argc, char *argv[])
         Fbo->Bind();
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        Fbo->UpdateDimensions(display_w, display_h);
         VoxelEngine.Render();
 
         // Start the Dear ImGui frame
@@ -131,7 +132,7 @@ int main(int argc, char *argv[])
         myUI->ToolBar();
         myUI->ColorPalette();
         myUI->ColorSelector();
-        myUI->ViewPort(Fbo->textureID);
+        myUI->ViewPort(Fbo->textureID, display_w, display_h);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
