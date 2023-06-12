@@ -2,6 +2,7 @@
 #include <utility/resource_manager.h>
 #include <iostream>
 #include <string>
+
 using namespace std;
 
 unsigned int pencilID;
@@ -143,17 +144,36 @@ void UI::ColorSelector()
     ImGui::End();
 }
 
-ImVec2 UI::ViewPort(unsigned int imageId)
+void UI::ViewPort(unsigned int imageId)
 {
     ImGui::Begin("Viewport");
-    ImVec2 windowSize = ImGui::GetContentRegionAvail();
-    ImGui::Image((ImTextureID)imageId, windowSize, {0, 1}, {1, 0});
-    ImGui::End();
+   
+    ImVec2 imPos = ImGui::GetWindowPos();
+    ImGuiStyle& style = ImGui::GetStyle();
+    float titleBarHeight = (style.FramePadding.y * 2) + ImGui::GetFontSize();
+    this->ViewPortPos = Vector2(imPos.x + style.WindowPadding.x, imPos.y + style.WindowPadding.y + titleBarHeight);
 
-    return windowSize;
+    ImVec2 imSize = ImGui::GetContentRegionAvail();
+    ViewPortSize = Vector2(imSize.x, imSize.y);
+
+    ImGui::Image((ImTextureID)imageId, imSize, {0, 1}, {1, 0});
+    
+    ImGui::End();
 }
 
+void UI::Debug(GLFWwindow *window)
+{
+    ImGui::Begin("Debug");
+    ImGui::Text("MousePos: (%.f, %.f)", VoxelEngine.MousePosX, VoxelEngine.MousePosY);
+    ImGui::Text("Viewport pos: (%.f , %.f)", this->ViewPortPos.x, this->ViewPortPos.y);
+    int xPos, yPos;
+    glfwGetWindowPos(window, &xPos, &yPos);
+    ImGui::Text("GLFWWindow pos: (%.f , %.f)", xPos, yPos);
+    ImGui::End();
+}
+
+
 UI::UI(Engine &voxelEngine)
-:VoxelEngine(voxelEngine)
+:VoxelEngine(voxelEngine),ViewPortPos(Vector2(0,0)), ViewPortSize(Vector2(0, 0))
 {
 }

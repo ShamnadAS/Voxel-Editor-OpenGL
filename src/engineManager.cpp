@@ -79,3 +79,15 @@ tuple<Vector3,float> EngineManager::RayCastHit(Camera &camera, float scrWidth, f
     result = make_tuple(value, tValue);
     return result;
 }
+
+Vector2 EngineManager::MousePosRelativeToViewPort(Vector2 &mousePos, UI* ui, GLFWwindow* window)
+{
+    Vector2 viewportPos = ui->ViewPortPos;
+    int xpos, ypos;
+    glfwGetWindowPos(window, &xpos, &ypos);
+    Vector2 windowPos = Vector2(xpos, ypos);
+    Vector2 offset = viewportPos - windowPos;
+    Vector2 relativePos = mousePos - offset;
+
+    return relativePos;
+}

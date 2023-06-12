@@ -82,7 +82,7 @@ void Engine::ProcessInput(float dt)
     
     if(Buttons[GLFW_MOUSE_BUTTON_LEFT])
     {
-        Vector2 scrMousePos(MousePosX, MousePosY);
+        Vector2 scrMousePos(MousePosX, MousePosY); //screen space coordinates
         float t = 1000.0f;
 
         switch (activeTool)

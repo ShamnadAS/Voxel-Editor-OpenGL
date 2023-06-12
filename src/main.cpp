@@ -5,6 +5,7 @@
 #include <engine/UI.h>
 #include <iostream>
 #include <utility/frame_buffer.h>
+#include <engine/engineManager.h>
 
 //pointers
 UI *myUI;
@@ -87,7 +88,6 @@ int main(int argc, char *argv[])
     bool show_demo_window = false;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    ImVec2 viewPortSize;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -106,12 +106,13 @@ int main(int argc, char *argv[])
         myUI->ToolBar();
         myUI->ColorPalette();
         myUI->ColorSelector();
-        viewPortSize = myUI->ViewPort(Fbo->textureID);
+        myUI->Debug(window);
+        myUI->ViewPort(Fbo->textureID);
         
         //update the viewport dimension
-        glViewport(0, 0, viewPortSize.x, viewPortSize.y);
-        VoxelEngine.Width = viewPortSize.x;
-        VoxelEngine.Height = viewPortSize.y;
+        glViewport(0, 0, myUI->ViewPortSize.x, myUI->ViewPortSize.y);
+        VoxelEngine.Width = myUI->ViewPortSize.x;
+        VoxelEngine.Height = myUI->ViewPortSize.y;
 
         // manage user input
         // -----------------
@@ -130,13 +131,20 @@ int main(int argc, char *argv[])
         Fbo->Bind();
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        Fbo->UpdateDimensions(viewPortSize.x, viewPortSize.y);
+        Fbo->UpdateDimensions(myUI->ViewPortSize.x, myUI->ViewPortSize.y);
         VoxelEngine.Render();
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         myUI->Render();
+
+        // Get the position of the window
+        int xPos, yPos;
+        glfwGetWindowPos(window, &xPos, &yPos);
+
+        std::cout << "Window Position: (" << xPos << ", " << yPos << ")" << std::endl;
+
 
         glfwSwapBuffers(window);
     }
@@ -181,8 +189,12 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 	VoxelEngine.MouseOffsetX = xpos - lastX;
 	VoxelEngine.MouseOffsetY = lastY - ypos;  // reversed: y ranges bottom to top
-    VoxelEngine.MousePosX = xpos;
-    VoxelEngine.MousePosY = ypos;
+
+    Vector2 mousePos = Vector2(xpos, ypos);
+    Vector2 mousePosRelativeToViewport = EngineManager().MousePosRelativeToViewPort(mousePos, myUI, window);
+
+    VoxelEngine.MousePosX = mousePosRelativeToViewport.x;
+    VoxelEngine.MousePosY = mousePosRelativeToViewport.y;
 	lastX = xpos;
 	lastY = ypos;
 }

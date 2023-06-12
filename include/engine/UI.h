@@ -5,10 +5,14 @@
 #include <imgui/imgui_impl_opengl3.h>
 #include <engine/engine.h>
 
+#include <GLFW/glfw3.h>
+
 class UI
 {
 public:
     Engine &VoxelEngine;
+    Vector2 ViewPortPos;
+    Vector2 ViewPortSize;
 
     UI(Engine &voxelEngine);
     ~UI();
@@ -20,5 +24,6 @@ public:
     void ToolBar();
     void ColorPalette();
     void ColorSelector();
-    ImVec2 ViewPort(unsigned int imageId);
+    void ViewPort(unsigned int imageId);
+    void Debug(GLFWwindow* window);
 };
