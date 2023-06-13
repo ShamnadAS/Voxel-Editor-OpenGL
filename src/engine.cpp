@@ -41,7 +41,7 @@ void Engine::Init()
    Shader cubeShader = ResourceManager::GetShader("cubeShader");
    Shader gridShader = ResourceManager::GetShader("gridShader");
 
-   Mygrid = new Grid(gridShader, 10, 10, Vector3(0.5f, 0.5f, 0.5f));
+   Mygrid = new Grid(gridShader, 30, 30, Vector3(0.5f, 0.5f, 0.5f));
 
    MyCamera = new Camera();
    MyCamera->Position = Vector3(-3.0f, 3.0f, -3.0f);
@@ -178,8 +178,26 @@ void Engine::ProcessInput(float dt)
         }
            
         case 2:
-            //paint tool
+        {
+            int index = -1;
+            for (unsigned i = 0; i < cubes.size(); i++)
+            {
+                std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cubes[i]);
+
+                if(get<0>(rayhit) != Vector3(0.0f, 0.0f, 0.0f) && t > std::get<1>(rayhit))
+                {
+                    t = std::get<1>(rayhit);
+                    index = i;
+                }  
+            }
+            
+            if(index != -1)
+            {
+                cubes[index].Color = activeColor;
+            }
             break;
+        }
+            
         default:
             break;
         }
