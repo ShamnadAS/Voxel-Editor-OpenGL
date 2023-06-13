@@ -15,6 +15,7 @@ Camera *MyCamera;
 
 unsigned int debugVAO;
 std::vector<Cube> cubes;
+unsigned lastCubeIndex = 0;
 
 void Debug();   
 
@@ -92,19 +93,19 @@ void Engine::ProcessInput(float dt)
             Vector3 position(0.0f, 0.0f, 0.0f);
             //Vector3 color(1.0f, 1.0f, 1.0f);
             bool cubePlaced = false;
-
-            for(auto &cube : cubes)
+           
+            for(int i = 0; i < lastCubeIndex; i++)
             {
                 //position = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cube);
-                std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cube);
+                std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cubes[i]);
 
                 if(get<0>(rayhit) != Vector3(0.0f, 0.0f, 0.0f) && t > std::get<1>(rayhit))
                 {
                     position = std::get<0>(rayhit);
-                    t = std::get<1>(rayhit);
+                    t = std::get<1>(rayhit); 
                 }
             }
-
+          
             if(position !=  Vector3(0.0f, 0.0f, 0.0f))
             {
                 for(auto &cube : cubes)
@@ -121,6 +122,7 @@ void Engine::ProcessInput(float dt)
                     Cube cube1(position, activeColor);
                     cubes.push_back(cube1); 
                     cubePlaced = true;
+                    
                 }
             }
 
@@ -167,9 +169,10 @@ void Engine::ProcessInput(float dt)
                 }  
             }
             
-            if(index != -1)
+            if(index != -1 && cubes[index].RenderCube)
             {
-                cubes.erase(cubes.begin() + index);
+                cubes[index].RenderCube = false;
+                //cubes.erase(cubes.begin() + index);
             }
             break;
         }
@@ -180,6 +183,18 @@ void Engine::ProcessInput(float dt)
         default:
             break;
         }
+    }
+    else
+    {
+        for (int i = 0; i < cubes.size(); i++)
+        {
+            if(!cubes[i].RenderCube)
+            {
+                cubes.erase(cubes.begin() + i);
+            }
+        }
+        
+        lastCubeIndex = cubes.size();
     }
 
     if(Buttons[GLFW_MOUSE_BUTTON_RIGHT])
@@ -200,7 +215,8 @@ void Engine::Render()
 
     for (auto & cube : cubes) 
     {
-        cube.Draw(*Renderer);
+        if(cube.RenderCube)
+            cube.Draw(*Renderer);
     }
    
     //Debug

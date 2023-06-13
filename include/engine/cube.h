@@ -6,6 +6,7 @@
 class Cube
 {
     public:
+    bool RenderCube;
     Cube(Vector3 position, Vector3 color);
     ~Cube();
     Vector3 Position;
