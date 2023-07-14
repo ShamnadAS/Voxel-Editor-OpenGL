@@ -15,7 +15,7 @@ in vec3 FragPos;
 uniform DirLight dirLight;
 uniform vec3 viewPos;
 uniform vec3 color;
-uniform int borderOn;
+uniform int borderOn = 1;
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 

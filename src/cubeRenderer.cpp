@@ -86,7 +86,7 @@ void CubeRenderer::Draw(Vector3 position, Vector3 color)
     glBindVertexArray(0);
 }   
 
-void CubeRenderer::SetShader(Shader shader)
+void CubeRenderer::SetShader(Shader &shader)
 {
 	this->shader = shader;
 }

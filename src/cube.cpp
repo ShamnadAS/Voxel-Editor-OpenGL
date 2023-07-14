@@ -14,4 +14,4 @@ Cube::~Cube()
 void Cube::Draw(CubeRenderer &renderer)
 {
     renderer.Draw(this->Position, this->Color); 
-}
+} 

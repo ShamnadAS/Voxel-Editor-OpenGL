@@ -4,7 +4,7 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 uniform vec3 color;
-uniform int borderOn;
+uniform int borderOn = 1;
 
 void main()
 {

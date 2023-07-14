@@ -11,7 +11,7 @@ class CubeRenderer
     CubeRenderer(Shader &shader);
     ~CubeRenderer();
     void Init();
-    void SetShader(Shader shader);
+    void SetShader(Shader &shader);
 
     private:
     Shader shader;

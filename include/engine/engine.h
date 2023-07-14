@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <math/Vectors.h>
-#include <engine/cubeRenderer.h>
+#include <utility/shader.h>
 
 class Engine
 {
@@ -22,6 +22,7 @@ public:
 
     unsigned int            ActiveTool;
     Vector3                 ActiveColor;
+    Shader                  ActiveShader;                  
 
     // constructor/destructor
     Engine(unsigned int width, unsigned int height);

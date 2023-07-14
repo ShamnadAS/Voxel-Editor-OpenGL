@@ -40,7 +40,7 @@ void Engine::Init()
    ResourceManager::LoadShader("shaders/cubeShaderLit.vs", "shaders/cubeShaderLit.fs", nullptr, "cubeShaderLit");
 
 
-   Shader cubeShader = ResourceManager::GetShader("cubeShaderLit");
+   ActiveShader = ResourceManager::GetShader("cubeShaderLit");
    Shader gridShader = ResourceManager::GetShader("gridShader");
 
    Mygrid = new Grid(gridShader, 30, 30, Vector3(0.5f, 0.5f, 0.5f));
@@ -51,7 +51,7 @@ void Engine::Init()
    float targetZ = Mygrid->cellSize * (float)Mygrid->row / 2.0f;
    MyCamera->Target = Vector3(targetX, 0.0f, targetZ);
 
-   Renderer = new CubeRenderer(cubeShader);
+   Renderer = new CubeRenderer(ActiveShader);
    //Debug();
 }
 
@@ -241,6 +241,8 @@ void Engine::ProcessInput(float dt)
 void Engine::Render()
 {
     Mygrid->Draw();
+
+    Renderer->SetShader(ActiveShader);
 
     for (auto & cube : cubes) 
     {

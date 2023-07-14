@@ -178,25 +178,26 @@ void UI::Debug(GLFWwindow *window)
     ImGui::End();
 }
 
+int value = 1;
+
 void UI::ControlBar()
 {
     ImGui::Begin("Control bar");
 
     if(ImGui::ImageButton((ImTextureID)gridID, {16, 16}))
     {
-        unsigned int shaderID = ResourceManager::GetShader("cubeShaderLit").ID;
-        unsigned int uniformLocation = glGetUniformLocation(shaderID, "borderOn");
-        GLint value; 
-        glGetUniformiv(shaderID, uniformLocation, &value);
-        
-        ResourceManager::GetShader("cubeShaderLit").Use().SetInteger("borderOn", abs(value - 1));
+        unsigned int shaderID = VoxelEngine.ActiveShader.ID;
+        value = abs(value - 1);
+        VoxelEngine.ActiveShader.Use().SetInteger("borderOn", value);
     }
 
     ImGui::SameLine(0.0f, ImGui::GetStyle().ItemSpacing.y);
 
     if(ImGui::ImageButton((ImTextureID)lightID, {16, 16}))
     {
-        
+        VoxelEngine.ActiveShader = VoxelEngine.ActiveShader.ID == ResourceManager::GetShader("cubeShaderLit").ID ?
+        ResourceManager::GetShader("cubeShader") : ResourceManager::GetShader("cubeShaderLit"); 
+        VoxelEngine.ActiveShader.Use().SetInteger("borderOn", value);
     }
 
     ImGui::End();
