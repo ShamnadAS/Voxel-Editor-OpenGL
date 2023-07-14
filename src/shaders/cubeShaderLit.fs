@@ -27,7 +27,7 @@ void main()
 
     if(borderOn == 1)
     {
-        float t = 0.01;
+        float t = 0.015;
         if(TexCoords.x > t && TexCoords.x < 1.0 - t && TexCoords.y > t && TexCoords.y < 1.0 - t)
         {
             FragColor = vec4(result, 1.0);

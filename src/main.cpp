@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
@@ -64,14 +65,15 @@ int main(int argc, char *argv[])
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_MULTISAMPLE);
 
     //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // initialize game
     // ---------------
-    VoxelEngine.Init();
+    VoxelEngine.Init(); 
     Fbo = new FrameBuffer();
-    Fbo->Init(1366, 786);
+    Fbo->Init(VoxelEngine.Width, VoxelEngine.Height);
 
     // deltaTime variables
     // -------------------
@@ -107,7 +109,7 @@ int main(int argc, char *argv[])
         myUI->ColorPalette();
         myUI->ColorSelector();
         //myUI->Debug(window);
-        myUI->ViewPort(Fbo->textureID);
+        myUI->ViewPort(Fbo->InterTextureId);
         myUI->ControlBar();
         
         //update the viewport dimension
@@ -132,8 +134,9 @@ int main(int argc, char *argv[])
         Fbo->Bind();
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        Fbo->UpdateDimensions(myUI->ViewPortSize.x, myUI->ViewPortSize.y);
+        Fbo->UpdateDimensions(VoxelEngine.Width, VoxelEngine.Height);
         VoxelEngine.Render();
+        Fbo->ResolveTexture(VoxelEngine.Width, VoxelEngine.Height);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
@@ -143,9 +146,6 @@ int main(int argc, char *argv[])
         // Get the position of the window
         int xPos, yPos;
         glfwGetWindowPos(window, &xPos, &yPos);
-
-        std::cout << "Window Position: (" << xPos << ", " << yPos << ")" << std::endl;
-
 
         glfwSwapBuffers(window);
     }

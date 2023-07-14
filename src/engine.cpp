@@ -43,7 +43,7 @@ void Engine::Init()
    ActiveShader = ResourceManager::GetShader("cubeShaderLit");
    Shader gridShader = ResourceManager::GetShader("gridShader");
 
-   Mygrid = new Grid(gridShader, 30, 30, Vector3(0.5f, 0.5f, 0.5f));
+   Mygrid = new Grid(gridShader, 15, 15, Vector3(0.5f, 0.5f, 0.5f));
 
    MyCamera = new Camera();
    MyCamera->Position = Vector3(-3.0f, 3.0f, -3.0f);
@@ -55,7 +55,7 @@ void Engine::Init()
    //Debug();
 }
 
-Vector3 lightDirection(-2.0f, -1.0f, 0.0f);
+Vector3 lightDirection(-2.0f, -1.0f, -1.5f);
 
 void Engine::Update(float dt)
 {
@@ -68,8 +68,8 @@ void Engine::Update(float dt)
     ResourceManager::GetShader("cubeShaderLit").Use().SetMatrix4("projection", projection);
     ResourceManager::GetShader("cubeShaderLit").Use().SetMatrix4("view", view);
     ResourceManager::GetShader("cubeShaderLit").Use().SetVector3f("dirLight.direction", lightDirection);
-    ResourceManager::GetShader("cubeShaderLit").Use().SetVector3f("dirLight.ambient", Vector3(0.2f, 0.2f, 0.2f));
-    ResourceManager::GetShader("cubeShaderLit").Use().SetVector3f("dirLight.diffuse", Vector3(1.5f, 1.5f, 1.5f));
+    ResourceManager::GetShader("cubeShaderLit").Use().SetVector3f("dirLight.ambient", Vector3(0.5f, 0.5f, 0.5f));
+    ResourceManager::GetShader("cubeShaderLit").Use().SetVector3f("dirLight.diffuse", Vector3(0.8f, 0.8f, 0.8f));
     ResourceManager::GetShader("cubeShaderLit").Use().SetVector3f("viewPos", MyCamera->Position);
 
     ResourceManager::GetShader("gridShader").Use().SetMatrix4("projection", projection);
