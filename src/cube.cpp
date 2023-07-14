@@ -8,7 +8,7 @@ Cube::Cube(Vector3 position, Vector3 color)
 
 Cube::~Cube()
 {
-
+    
 }
 
 void Cube::Draw(CubeRenderer &renderer)

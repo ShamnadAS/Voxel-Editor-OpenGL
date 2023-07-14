@@ -8,6 +8,8 @@ using namespace std;
 unsigned int pencilID;
 unsigned int eraserID;
 unsigned int paintID;
+unsigned int gridID;
+unsigned int lightID;
 
 ImVec4 color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 bool loadPalette = true;
@@ -19,10 +21,14 @@ void UI::OnCreate(const char* openglVersion, GLFWwindow* window)
     ResourceManager::LoadTexture("icons/pencil.png", true, "pencil");
     ResourceManager::LoadTexture("icons/eraser.png", true, "eraser");
     ResourceManager::LoadTexture("icons/paint.png", true, "paint");
+    ResourceManager::LoadTexture("icons/grid.png", true, "grid");
+    ResourceManager::LoadTexture("icons/light-bulb.png", true, "light");
 
     pencilID = ResourceManager::GetTexture("pencil").ID;
     eraserID = ResourceManager::GetTexture("eraser").ID;
     paintID = ResourceManager::GetTexture("paint").ID;
+    gridID = ResourceManager::GetTexture("grid").ID;
+    lightID = ResourceManager::GetTexture("light").ID;
 
     //Load Palettes
     vector<Vector3> palette = ResourceManager::LoadColorPalette("palette/palette 2.png", "palette1");
@@ -95,16 +101,16 @@ void UI::ToolBar()
 
     if(ImGui::ImageButton((ImTextureID)pencilID, {32, 32}))
     { 
-        VoxelEngine.activeTool = 0;
+        VoxelEngine.ActiveTool = 0;
     }
     ImGui::IsItemActive();
     if(ImGui::ImageButton((ImTextureID)eraserID, {32, 32}))
     {
-        VoxelEngine.activeTool = 1;
+        VoxelEngine.ActiveTool = 1;
     }
     if(ImGui::ImageButton((ImTextureID)paintID, {32, 32}))
     {
-        VoxelEngine.activeTool = 2;
+        VoxelEngine.ActiveTool = 2;
     }
 
     ImGui::End();
@@ -125,7 +131,7 @@ void UI::ColorPalette()
         if(ImGui::ColorButton("color", imPalette[i]))
         {
             color = imPalette[i];
-            VoxelEngine.activeColor = Vector3(imPalette[i].x, imPalette[i].y, imPalette[i].z);
+            VoxelEngine.ActiveColor = Vector3(imPalette[i].x, imPalette[i].y, imPalette[i].z);
         }
 
         ImGui::PopID();
@@ -139,7 +145,7 @@ void UI::ColorSelector()
     ImGui::Begin("Color Selector");
     if(ImGui::ColorPicker3("Current", (float*)&color))
     {
-        VoxelEngine.activeColor = Vector3(color.x, color.y, color.z);
+        VoxelEngine.ActiveColor = Vector3(color.x, color.y, color.z);
     }
     ImGui::End();
 }
@@ -172,6 +178,29 @@ void UI::Debug(GLFWwindow *window)
     ImGui::End();
 }
 
+void UI::ControlBar()
+{
+    ImGui::Begin("Control bar");
+
+    if(ImGui::ImageButton((ImTextureID)gridID, {16, 16}))
+    {
+        unsigned int shaderID = ResourceManager::GetShader("cubeShaderLit").ID;
+        unsigned int uniformLocation = glGetUniformLocation(shaderID, "borderOn");
+        GLint value; 
+        glGetUniformiv(shaderID, uniformLocation, &value);
+        
+        ResourceManager::GetShader("cubeShaderLit").Use().SetInteger("borderOn", abs(value - 1));
+    }
+
+    ImGui::SameLine(0.0f, ImGui::GetStyle().ItemSpacing.y);
+
+    if(ImGui::ImageButton((ImTextureID)lightID, {16, 16}))
+    {
+        
+    }
+
+    ImGui::End();
+}
 
 UI::UI(Engine &voxelEngine)
 :VoxelEngine(voxelEngine),ViewPortPos(Vector2(0,0)), ViewPortSize(Vector2(0, 0))

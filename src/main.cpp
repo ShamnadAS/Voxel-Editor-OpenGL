@@ -106,8 +106,9 @@ int main(int argc, char *argv[])
         myUI->ToolBar();
         myUI->ColorPalette();
         myUI->ColorSelector();
-        myUI->Debug(window);
+        //myUI->Debug(window);
         myUI->ViewPort(Fbo->textureID);
+        myUI->ControlBar();
         
         //update the viewport dimension
         glViewport(0, 0, myUI->ViewPortSize.x, myUI->ViewPortSize.y);

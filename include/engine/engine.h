@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <math/Vectors.h>
+#include <engine/cubeRenderer.h>
 
 class Engine
 {
@@ -19,8 +20,8 @@ public:
     float                   MousePosX;
     float                   MousePosY;
 
-    unsigned int            activeTool;
-    Vector3                 activeColor;
+    unsigned int            ActiveTool;
+    Vector3                 ActiveColor;
 
     // constructor/destructor
     Engine(unsigned int width, unsigned int height);

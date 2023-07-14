@@ -11,8 +11,9 @@ class CubeRenderer
     CubeRenderer(Shader &shader);
     ~CubeRenderer();
     void Init();
+    void SetShader(Shader shader);
 
     private:
-    unsigned int VAO;
     Shader shader;
+    unsigned int VAO;
 };

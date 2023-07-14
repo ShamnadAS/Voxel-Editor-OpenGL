@@ -20,8 +20,8 @@ unsigned lastCubeIndex = 0;
 void Debug();   
 
 Engine::Engine(unsigned int width, unsigned int height)
-    : Keys(), Buttons(), Width(width), Height(height), IsMouseMoving(false), IsMouseScrolling(false),activeTool(0),
-    activeColor(Vector3(1.0f, 1.0f, 1.0f))
+    : Keys(), Buttons(), Width(width), Height(height), IsMouseMoving(false), IsMouseScrolling(false),ActiveTool(0),
+    ActiveColor(Vector3(1.0f, 1.0f, 1.0f))
 {
 }
 
@@ -37,8 +37,10 @@ void Engine::Init()
    ResourceManager::LoadShader("shaders/cubeShader.vs", "shaders/cubeShader.fs", nullptr, "cubeShader");
    ResourceManager::LoadShader("shaders/gridShader.vs", "shaders/gridShader.fs", nullptr, "gridShader");
    ResourceManager::LoadShader("shaders/debugShader.vs", "shaders/debugShader.fs", nullptr, "debugShader");
+   ResourceManager::LoadShader("shaders/cubeShaderLit.vs", "shaders/cubeShaderLit.fs", nullptr, "cubeShaderLit");
 
-   Shader cubeShader = ResourceManager::GetShader("cubeShader");
+
+   Shader cubeShader = ResourceManager::GetShader("cubeShaderLit");
    Shader gridShader = ResourceManager::GetShader("gridShader");
 
    Mygrid = new Grid(gridShader, 30, 30, Vector3(0.5f, 0.5f, 0.5f));
@@ -50,9 +52,10 @@ void Engine::Init()
    MyCamera->Target = Vector3(targetX, 0.0f, targetZ);
 
    Renderer = new CubeRenderer(cubeShader);
-
    //Debug();
 }
+
+Vector3 lightDirection(-2.0f, -1.0f, 0.0f);
 
 void Engine::Update(float dt)
 {
@@ -61,10 +64,18 @@ void Engine::Update(float dt)
     Matrix4 projection = Matrix4().perspective(MyCamera->Zoom, (float)Width/(float)Height, 1000.0f, 0.01f);
     ResourceManager::GetShader("cubeShader").Use().SetMatrix4("projection", projection);
     ResourceManager::GetShader("cubeShader").Use().SetMatrix4("view", view);
+
+    ResourceManager::GetShader("cubeShaderLit").Use().SetMatrix4("projection", projection);
+    ResourceManager::GetShader("cubeShaderLit").Use().SetMatrix4("view", view);
+    ResourceManager::GetShader("cubeShaderLit").Use().SetVector3f("dirLight.direction", lightDirection);
+    ResourceManager::GetShader("cubeShaderLit").Use().SetVector3f("dirLight.ambient", Vector3(0.2f, 0.2f, 0.2f));
+    ResourceManager::GetShader("cubeShaderLit").Use().SetVector3f("dirLight.diffuse", Vector3(1.5f, 1.5f, 1.5f));
+    ResourceManager::GetShader("cubeShaderLit").Use().SetVector3f("viewPos", MyCamera->Position);
+
     ResourceManager::GetShader("gridShader").Use().SetMatrix4("projection", projection);
     ResourceManager::GetShader("gridShader").Use().SetMatrix4("view", view);
-    ResourceManager::GetShader("debugShader").Use().SetMatrix4("projection", projection);
-    ResourceManager::GetShader("debugShader").Use().SetMatrix4("view", view);
+    // ResourceManager::GetShader("debugShader").Use().SetMatrix4("projection", projection);
+    // ResourceManager::GetShader("debugShader").Use().SetMatrix4("view", view);
 }
 
 void Engine::ProcessInput(float dt)
@@ -86,7 +97,7 @@ void Engine::ProcessInput(float dt)
         Vector2 scrMousePos(MousePosX, MousePosY); //screen space coordinates
         float t = 1000.0f;
 
-        switch (activeTool)
+        switch (ActiveTool)
         {
         case 0:
         {
@@ -119,7 +130,7 @@ void Engine::ProcessInput(float dt)
 
                 if(!cubePlaced)
                 {
-                    Cube cube1(position, activeColor);
+                    Cube cube1(position, ActiveColor);
                     cubes.push_back(cube1); 
                     cubePlaced = true;
                     
@@ -148,7 +159,7 @@ void Engine::ProcessInput(float dt)
                 }
                 if(!cubePlaced)
                 {
-                    Cube cube(position, activeColor);
+                    Cube cube(position, ActiveColor);
                     cubes.push_back(cube);
                 }
             }
@@ -193,7 +204,7 @@ void Engine::ProcessInput(float dt)
             
             if(index != -1)
             {
-                cubes[index].Color = activeColor;
+                cubes[index].Color = ActiveColor;
             }
             break;
         }
@@ -238,19 +249,19 @@ void Engine::Render()
     }
    
     //Debug
-    Shader debugShader = ResourceManager::GetShader("debugShader");
-    debugShader.Use();
-    Matrix4 debugModel;
-    debugModel.scale(Mygrid->row / 2.0f);
-    debugShader.SetMatrix4("model", debugModel);
-    glBindVertexArray(debugVAO);
-    debugShader.SetVector3f("color", Vector3(1.0f, 0.41f, 0.41f));
-    glDrawArrays(GL_LINES, 0, 2);
+    // Shader debugShader = ResourceManager::GetShader("debugShader");
+    // debugShader.Use();
+    // Matrix4 debugModel;
+    // debugModel.scale(Mygrid->row / 2.0f);
+    // debugShader.SetMatrix4("model", debugModel);
+    // glBindVertexArray(debugVAO);
+    // debugShader.SetVector3f("color", Vector3(1.0f, 0.41f, 0.41f));
+    // glDrawArrays(GL_LINES, 0, 2);
 
-    debugShader.SetVector3f("color", Vector3(0.30f, 0.59f, 1.0f));
-    debugModel.rotateY(-90.0f);
-    debugShader.SetMatrix4("model", debugModel);
-    glDrawArrays(GL_LINES, 0, 2);
+    // debugShader.SetVector3f("color", Vector3(0.30f, 0.59f, 1.0f));
+    // debugModel.rotateY(-90.0f);
+    // debugShader.SetMatrix4("model", debugModel);
+    // glDrawArrays(GL_LINES, 0, 2);
 }
 
 void Debug()

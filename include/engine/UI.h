@@ -22,6 +22,7 @@ public:
     void OnBegin();
     void Render();
     void ToolBar();
+    void ControlBar();
     void ColorPalette();
     void ColorSelector();
     void ViewPort(unsigned int imageId);
