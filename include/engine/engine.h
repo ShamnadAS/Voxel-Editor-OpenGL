@@ -19,6 +19,8 @@ public:
     float                   MouseScroll;
     float                   MousePosX;
     float                   MousePosY;
+    const float             NEAR = 0.01f;
+    const float             FAR = 1000.0f;
 
     unsigned int            ActiveTool;
     Vector3                 ActiveColor;

@@ -9,7 +9,7 @@
 // Default camera values
 const float SPEED = 0.5f;
 const float SENSITIVITY = 0.05f;
-const float ZOOM = 45.0f;
+const float FOV = 45.0f;
 
 class Camera
 {
@@ -27,11 +27,11 @@ public:
     // camera options
     float MovementSpeed;
     float MouseSensitivity;
-    float Zoom;
+    float Fov;
 
     // constructor with vectors
     Camera(Vector3 position = Vector3(0.0f, 0.0f, 5.0f), Vector3 up = Vector3(0.0f, 1.0f, 0.0f), Vector3 target = Vector3(0.0f, 0.0f, 0.0f)) 
-    : Forward(Vector3(0.0f, 0.0f, 1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+    : Forward(Vector3(0.0f, 0.0f, 1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Fov(FOV)
     {
         Position = position;
         WorldUp = up;
@@ -90,11 +90,11 @@ public:
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void CameraZoom(float yoffset)
     {
-        Zoom -= (float)yoffset;
-        if (Zoom < 1.0f)
-            Zoom = 1.0f;
-        if (Zoom > 45.0f)
-            Zoom = 45.0f;
+        Fov -= (float)yoffset;
+        if (Fov < 1.0f)
+            Fov = 1.0f;
+        if (Fov > 45.0f)
+            Fov = 45.0f;
     }
     
 private:

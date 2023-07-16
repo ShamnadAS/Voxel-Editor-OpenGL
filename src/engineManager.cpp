@@ -15,7 +15,7 @@ Vector3 Normal[] =
 Vector3 EngineManager::CastRay(Camera &camera, unsigned int scrWidth, unsigned int scrHeight, float n, Vector2 &scrMousePos)
 {
     float aspectRatio = (float)scrWidth / (float)scrHeight;
-    float tangent = tanf(camera.Zoom * DEG2RAD / 2);
+    float tangent = tanf(camera.Fov * DEG2RAD / 2);
     float t = tangent * n;
     float r = aspectRatio * t;
 
