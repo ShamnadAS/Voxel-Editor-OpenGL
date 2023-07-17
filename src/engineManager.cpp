@@ -12,38 +12,38 @@ Vector3 Normal[] =
     Vector3(0.0f, 0.0f, -1.0f)  //backward
 };
 
-Vector3 EngineManager::CastRay(Camera &camera, unsigned int scrWidth, unsigned int scrHeight, float n, Vector2 &scrMousePos)
+Vector3 EngineManager::CastRay(Matrix4 projection, Matrix4 view, Vector2 &scrMousePos, unsigned scrWidth, unsigned scrHeight)
 {
-    float aspectRatio = (float)scrWidth / (float)scrHeight;
-    float tangent = tanf(camera.Fov * DEG2RAD / 2);
-    float t = tangent * n;
-    float r = aspectRatio * t;
+    Vector3 ndc;
+    ndc.x = (2 * scrMousePos.x/ scrWidth) - 1.0f;
+    ndc.y = 1.0f - (2 * scrMousePos.y / scrHeight);
+    ndc.z = 1.0f;
 
-    float xLength = ( 2.0f * r * scrMousePos.x / scrWidth ) - r;
-    float yLength = t - ( 2.0f * t * scrMousePos.y / scrHeight );
+    Vector4 rayClip = Vector4(ndc.x, ndc.y, -1.0f, 1.0f);
+    Vector4 rayEye = projection.invert() * rayClip;
+    rayEye.z = -1.0f;
+    rayEye.w = 0.0f;
 
-    Vector3 a = camera.Right * xLength + camera.Up * yLength;
-    Vector3 b = -n * camera.Forward; 
-    Vector3 direction = a + b;
+    Vector4 rayWorld = view.invert() * rayEye;
+    Vector3 ray = Vector3(rayWorld.x, rayWorld.y, rayWorld.z).normalize();
 
-    return direction.normalize();
+    return ray;
 }   
 
 //Hit position on the grid
-Vector3 EngineManager::RayCastHit(Camera &camera, float scrWidth, float scrHeight, float n, Vector2 &scrMousePos)
+Vector3 EngineManager::RayCastHit(Camera &camera, Matrix4 projection, Matrix4 view, Vector2 &scrMousePos, unsigned scrWidth, unsigned scrHeight)
 {
     Vector3 value(0.0f, 0.0f, 0.0f);
-    Vector3 direction = CastRay(camera, scrWidth, scrHeight, n, scrMousePos);
+    Vector3 direction = CastRay(projection, view, scrMousePos, scrWidth, scrHeight);
     float t = -camera.Position.y / direction.y;
     if( t > 0)
     {
         value = camera.Position + ( t * direction );
     }
-    
     return value;
 }
 
-tuple<Vector3,float> EngineManager::RayCastHit(Camera &camera, float scrWidth, float scrHeight, float n, Vector2 &scrMousePos, Cube &cube)
+tuple<Vector3,float> EngineManager::RayCastHit(Camera &camera, Matrix4 projection, Matrix4 view, Vector2 &scrMousePos, Cube &cube, float scrWidth, float scrHeight)
 {
     Vector3 value(0.0f, 0.0f, 0.0f);
     unsigned normIndex = -1;    
@@ -52,7 +52,7 @@ tuple<Vector3,float> EngineManager::RayCastHit(Camera &camera, float scrWidth, f
 
     for (unsigned i = 0; i < 6; i++)
     {
-        Vector3 direction = CastRay(camera, scrWidth, scrHeight, n, scrMousePos);
+        Vector3 direction = CastRay(projection, view, scrMousePos, scrWidth, scrHeight);
         Vector3 face = cube.Position + ( Normal[i] * 0.5f );
         float t = (face -  camera.Position).dot(Normal[i]) / direction.dot(Normal[i]);
 

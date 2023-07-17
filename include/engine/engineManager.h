@@ -10,9 +10,9 @@
 class EngineManager
 {
 public:
-    static Vector3 CastRay(Camera &camera, unsigned int scrWidth, unsigned int scrHeight, float n, Vector2 &scrMousePos);
-    static Vector3 RayCastHit(Camera &camera, float scrWidth, float scrHeight, float n, Vector2 &scrMousePos);
-    static std::tuple<Vector3,float> RayCastHit(Camera &camera, float scrWidth, float scrHeight, float n, Vector2 &scrMousePos, Cube &cube);
+    static Vector3 CastRay(Matrix4 projection, Matrix4 view, Vector2 &scrMousePos, unsigned scrWidth, unsigned scrHeight);
+    static Vector3 RayCastHit(Camera &camera, Matrix4 projection, Matrix4 view, Vector2 &scrMousePos, unsigned scrWidth, unsigned scrHeight);
+    static std::tuple<Vector3,float> RayCastHit(Camera &camera, Matrix4 projection, Matrix4 view, Vector2 &scrMousePos, Cube &cube, float scrWidth, float scrHeight);
     static Vector2 MousePosRelativeToViewPort(Vector2 &mousePos, UI* ui, GLFWwindow* window);
 };
 
