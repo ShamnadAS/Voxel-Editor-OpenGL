@@ -27,4 +27,5 @@ public:
     void ColorSelector();
     void ViewPort(unsigned int imageId);
     void Debug(GLFWwindow* window);
+    void MenuBar();
 };

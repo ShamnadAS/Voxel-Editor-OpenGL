@@ -108,6 +108,7 @@ int main(int argc, char *argv[])
         myUI->ToolBar();
         myUI->ColorPalette();
         myUI->ColorSelector();
+        myUI->MenuBar();
         //myUI->Debug(window);
         myUI->ViewPort(Fbo->InterTextureId);
         myUI->ControlBar();
@@ -132,7 +133,7 @@ int main(int argc, char *argv[])
         // render
         // ------
         Fbo->Bind();
-        glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         Fbo->UpdateDimensions(VoxelEngine.Width, VoxelEngine.Height);
         VoxelEngine.Render();

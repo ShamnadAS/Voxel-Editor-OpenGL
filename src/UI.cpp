@@ -99,16 +99,17 @@ void UI::ToolBar()
 {
     ImGui::Begin("Toolbar");
 
-    if(ImGui::ImageButton((ImTextureID)pencilID, {32, 32}))
+
+    if(ImGui::ImageButton((ImTextureID)pencilID, {32, 32}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0), VoxelEngine.ActiveTool == 0 ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))
     { 
         VoxelEngine.ActiveTool = 0;
     }
     ImGui::IsItemActive();
-    if(ImGui::ImageButton((ImTextureID)eraserID, {32, 32}))
+    if(ImGui::ImageButton((ImTextureID)eraserID, {32, 32}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0), VoxelEngine.ActiveTool == 1 ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))
     {
         VoxelEngine.ActiveTool = 1;
     }
-    if(ImGui::ImageButton((ImTextureID)paintID, {32, 32}))
+    if(ImGui::ImageButton((ImTextureID)paintID, {32, 32}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0), VoxelEngine.ActiveTool == 2 ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))
     {
         VoxelEngine.ActiveTool = 2;
     }
@@ -167,6 +168,27 @@ void UI::ViewPort(unsigned int imageId)
     ImGui::End();
 }
 
+void UI::MenuBar()
+{
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("New")) { /* Handle 'New' menu item click */ }
+            if (ImGui::MenuItem("Open")) { /* Handle 'Open' menu item click */ }
+            if (ImGui::MenuItem("Save")) { /* Handle 'Save' menu item click */ }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Edit"))
+        {
+            if (ImGui::MenuItem("Undo")) { /* Handle 'New' menu item click */ }
+            if (ImGui::MenuItem("Redo")) { /* Handle 'Open' menu item click */ }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+}
+
 void UI::Debug(GLFWwindow *window)
 {
     ImGui::Begin("Debug");
@@ -184,7 +206,7 @@ void UI::ControlBar()
 {
     ImGui::Begin("Control bar");
 
-    if(ImGui::ImageButton((ImTextureID)gridID, {16, 16}))
+    if(ImGui::ImageButton((ImTextureID)gridID, {16, 16}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0),  value == 1 ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))
     {
         unsigned int shaderID = VoxelEngine.ActiveShader.ID;
         value = abs(value - 1);
@@ -193,7 +215,8 @@ void UI::ControlBar()
 
     ImGui::SameLine(0.0f, ImGui::GetStyle().ItemSpacing.y);
 
-    if(ImGui::ImageButton((ImTextureID)lightID, {16, 16}))
+    if(ImGui::ImageButton((ImTextureID)lightID, {16, 16}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0), VoxelEngine.ActiveShader.ID == 
+    ResourceManager::GetShader("cubeShaderLit").ID ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))
     {
         VoxelEngine.ActiveShader = VoxelEngine.ActiveShader.ID == ResourceManager::GetShader("cubeShaderLit").ID ?
         ResourceManager::GetShader("cubeShader") : ResourceManager::GetShader("cubeShaderLit"); 
