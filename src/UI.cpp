@@ -10,6 +10,7 @@ unsigned int eraserID;
 unsigned int paintID;
 unsigned int gridID;
 unsigned int lightID;
+unsigned int rectID;
 
 ImVec4 color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 bool loadPalette = true;
@@ -23,12 +24,14 @@ void UI::OnCreate(const char* openglVersion, GLFWwindow* window)
     ResourceManager::LoadTexture("icons/paint.png", true, "paint");
     ResourceManager::LoadTexture("icons/grid.png", true, "grid");
     ResourceManager::LoadTexture("icons/light-bulb.png", true, "light");
+    ResourceManager::LoadTexture("icons/rectangle.png", true, "rect");
 
     pencilID = ResourceManager::GetTexture("pencil").ID;
     eraserID = ResourceManager::GetTexture("eraser").ID;
     paintID = ResourceManager::GetTexture("paint").ID;
     gridID = ResourceManager::GetTexture("grid").ID;
     lightID = ResourceManager::GetTexture("light").ID;
+    rectID  = ResourceManager::GetTexture("rect").ID;
 
     //Load Palettes
     vector<Vector3> palette = ResourceManager::LoadColorPalette("palette/palette 2.png", "palette1");
@@ -103,6 +106,10 @@ void UI::ToolBar()
     if(ImGui::ImageButton((ImTextureID)pencilID, {32, 32}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0), VoxelEngine.ActiveTool == 0 ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))
     { 
         VoxelEngine.ActiveTool = 0;
+    }
+    if(ImGui::ImageButton((ImTextureID)rectID, {32, 32}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0), VoxelEngine.ActiveTool == 3 ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))
+    {
+        VoxelEngine.ActiveTool = 3;
     }
     ImGui::IsItemActive();
     if(ImGui::ImageButton((ImTextureID)eraserID, {32, 32}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0), VoxelEngine.ActiveTool == 1 ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))

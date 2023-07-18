@@ -51,7 +51,7 @@ void Engine::Init()
    MyCamera->Target = Vector3(targetX, 0.0f, targetZ); 
 
    Renderer = new CubeRenderer(ActiveShader);
-   //Debug();
+   Debug();
 }
 
 Vector3 lightDirection(-2.0f, -1.0f, -1.5f);
@@ -74,9 +74,12 @@ void Engine::Update(float dt)
 
     ResourceManager::GetShader("gridShader").Use().SetMatrix4("projection", projection);
     ResourceManager::GetShader("gridShader").Use().SetMatrix4("view", view);
-    // ResourceManager::GetShader("debugShader").Use().SetMatrix4("projection", projection);
-    // ResourceManager::GetShader("debugShader").Use().SetMatrix4("view", view);
+    ResourceManager::GetShader("debugShader").Use().SetMatrix4("projection", projection);
+    ResourceManager::GetShader("debugShader").Use().SetMatrix4("view", view);
 }
+
+Vector3 startPos(0.0f, 0.0f, 0.0f);
+std::vector<Cube> rectCubes; 
 
 void Engine::ProcessInput(float dt)
 {
@@ -208,6 +211,49 @@ void Engine::ProcessInput(float dt)
             }
             break;
         }
+
+        case 3:
+        {
+            float intPart;
+            rectCubes.clear();
+
+            if(startPos == Vector3(0.0f, 0.0f, 0.0f))
+            {
+                startPos = EngineManager().RayCastHit(*MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, Width, Height);
+               
+                modf(startPos.x, &intPart);
+                startPos.x = intPart + 0.5f;
+                modf(startPos.z, &intPart);
+                startPos.z = intPart + 0.5f;
+                startPos.y = 0.5f;
+            }
+
+            Vector3 currentPos = EngineManager().RayCastHit(*MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, Width, Height);
+
+            modf(currentPos.x, &intPart);
+            currentPos.x = intPart + 0.5f;
+            modf(currentPos.z, &intPart);
+            currentPos.z = intPart + 0.5f;
+            currentPos.y = 0.5f;
+            std::cout << currentPos << std::endl;
+            
+            Vector3 diff = currentPos - startPos;
+
+            for (unsigned i = 0; i <= abs(diff.x); i++)
+            {   
+                for (unsigned j = 0; j <= abs(diff.z); j++)
+                {
+                    int x = diff.x < 0 ? -i : i;
+                    int z = diff.z < 0 ? -j : j;
+
+                    Vector3 position(startPos + Vector3(x, 0.0f, z));
+                    Cube cube(position, ActiveColor);
+                    rectCubes.push_back(cube);
+                }
+            }
+
+            break;
+        }
             
         default:
             break;
@@ -215,6 +261,13 @@ void Engine::ProcessInput(float dt)
     }
     else
     {
+        if(rectCubes.size() > 0)
+        {
+            startPos = Vector3(0.0f, 0.0f, 0.0f);
+            cubes.insert(cubes.end(), rectCubes.begin(), rectCubes.end());
+            rectCubes.clear();
+        }
+
         for (int i = 0; i < cubes.size(); i++)
         {
             if(!cubes[i].RenderCube)
@@ -222,7 +275,7 @@ void Engine::ProcessInput(float dt)
                 cubes.erase(cubes.begin() + i);
             }
         }
-        
+
         lastCubeIndex = cubes.size();
     }
 
@@ -249,21 +302,26 @@ void Engine::Render()
         if(cube.RenderCube)
             cube.Draw(*Renderer);
     }
+
+    for (auto & cube : rectCubes)
+    {
+        cube.Draw(*Renderer);
+    }
    
     //Debug
-    // Shader debugShader = ResourceManager::GetShader("debugShader");
-    // debugShader.Use();
-    // Matrix4 debugModel;
-    // debugModel.scale(Mygrid->row / 2.0f);
-    // debugShader.SetMatrix4("model", debugModel);
-    // glBindVertexArray(debugVAO);
-    // debugShader.SetVector3f("color", Vector3(1.0f, 0.41f, 0.41f));
-    // glDrawArrays(GL_LINES, 0, 2);
+    Shader debugShader = ResourceManager::GetShader("debugShader");
+    debugShader.Use();
+    Matrix4 debugModel;
+    debugModel.scale(Mygrid->row / 2.0f);
+    debugShader.SetMatrix4("model", debugModel);
+    glBindVertexArray(debugVAO);
+    debugShader.SetVector3f("color", Vector3(1.0f, 0.41f, 0.41f));
+    glDrawArrays(GL_LINES, 0, 2);
 
-    // debugShader.SetVector3f("color", Vector3(0.30f, 0.59f, 1.0f));
-    // debugModel.rotateY(-90.0f);
-    // debugShader.SetMatrix4("model", debugModel);
-    // glDrawArrays(GL_LINES, 0, 2);
+    debugShader.SetVector3f("color", Vector3(0.30f, 0.59f, 1.0f));
+    debugModel.rotateY(-90.0f);
+    debugShader.SetMatrix4("model", debugModel);
+    glDrawArrays(GL_LINES, 0, 2);
 }
 
 void Debug()
