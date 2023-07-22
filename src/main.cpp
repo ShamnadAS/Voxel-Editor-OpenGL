@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
         myUI->ColorPalette();
         myUI->ColorSelector();
         myUI->MenuBar();
-        //myUI->Debug(window);
+        myUI->Debug(window);
         myUI->ViewPort(Fbo->InterTextureId);
         myUI->ControlBar();
         

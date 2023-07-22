@@ -12,6 +12,7 @@ public:
     bool                    Keys[1024];
     bool                    Buttons[3];
     bool                    IsMouseMoving;
+    bool                    IsMouseInViewPort;
     bool                    IsMouseScrolling;
     unsigned int            Width, Height;
     float                   MouseOffsetX;

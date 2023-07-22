@@ -31,18 +31,18 @@ Vector3 EngineManager::CastRay(Matrix4 projection, Matrix4 view, Vector2 &scrMou
 }   
 
 //Hit position on the grid
-Vector3 EngineManager::RayCastHit(Camera &camera, Matrix4 projection, Matrix4 view, Vector2 &scrMousePos, unsigned scrWidth, unsigned scrHeight)
+Vector3 EngineManager::RayCastHit(unsigned k, Camera &camera, Matrix4 projection, Matrix4 view, Vector2 &scrMousePos, unsigned scrWidth, unsigned scrHeight)
 {
     Vector3 value(0.0f, 0.0f, 0.0f);
     Vector3 direction = CastRay(projection, view, scrMousePos, scrWidth, scrHeight);
-    float t = -camera.Position.y / direction.y;
+    float t = ( k - camera.Position.y ) / direction.y;
     if( t > 0)
     {
         value = camera.Position + ( t * direction );
     }
     return value;
 }
-
+ 
 tuple<Vector3,float> EngineManager::RayCastHit(Camera &camera, Matrix4 projection, Matrix4 view, Vector2 &scrMousePos, Cube &cube, float scrWidth, float scrHeight)
 {
     Vector3 value(0.0f, 0.0f, 0.0f);

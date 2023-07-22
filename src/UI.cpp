@@ -169,6 +169,9 @@ void UI::ViewPort(unsigned int imageId)
 
     ImVec2 imSize = ImGui::GetContentRegionAvail();
     ViewPortSize = Vector2(imSize.x, imSize.y);
+    
+    VoxelEngine.IsMouseInViewPort = VoxelEngine.MousePosX >= 0 && VoxelEngine.MousePosY >= 0
+                                    && VoxelEngine.MousePosX <= ViewPortSize.x && VoxelEngine.MousePosY <= ViewPortSize.y;
 
     ImGui::Image((ImTextureID)imageId, imSize, {0, 1}, {1, 0});
     
@@ -204,6 +207,7 @@ void UI::Debug(GLFWwindow *window)
     int xPos, yPos;
     glfwGetWindowPos(window, &xPos, &yPos);
     ImGui::Text("GLFWWindow pos: (%.f , %.f)", xPos, yPos);
+    ImGui::Text("Viewport Siz: %.f, %.f", ViewPortSize.x, ViewPortSize.y);
     ImGui::End();
 }
 

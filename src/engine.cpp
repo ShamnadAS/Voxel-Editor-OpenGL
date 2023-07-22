@@ -16,6 +16,7 @@ Camera *MyCamera;
 unsigned int debugVAO;
 std::vector<Cube> cubes;
 unsigned lastCubeIndex = 0;
+unsigned gridCount = 30;
 
 void Debug();   
 
@@ -43,12 +44,12 @@ void Engine::Init()
    ActiveShader = ResourceManager::GetShader("cubeShaderLit");
    Shader gridShader = ResourceManager::GetShader("gridShader");
 
-   Mygrid = new Grid(gridShader, 15, 15, Vector3(0.5f, 0.5f, 0.5f));
+   Mygrid = new Grid(gridShader, gridCount, gridCount, Vector3(0.5f, 0.5f, 0.5f));
 
    MyCamera = new Camera();
    float targetX = Mygrid->cellSize * (float)Mygrid->column / 2.0f;
    float targetZ = Mygrid->cellSize * (float)Mygrid->row / 2.0f;
-   MyCamera->Target = Vector3(targetX, 0.0f, targetZ); 
+   MyCamera->Target = Vector3(targetX, 0.0f, targetZ);  
 
    Renderer = new CubeRenderer(ActiveShader);
    Debug();
@@ -79,6 +80,7 @@ void Engine::Update(float dt)
 }
 
 Vector3 startPos(0.0f, 0.0f, 0.0f);
+unsigned k;
 std::vector<Cube> rectCubes; 
 
 void Engine::ProcessInput(float dt)
@@ -95,7 +97,7 @@ void Engine::ProcessInput(float dt)
         }
     }
     
-    if(Buttons[GLFW_MOUSE_BUTTON_LEFT])
+    if(Buttons[GLFW_MOUSE_BUTTON_LEFT] && IsMouseInViewPort)
     {
         Vector2 scrMousePos(MousePosX, MousePosY); //screen space coordinates
         float t = 1000.0f;
@@ -140,7 +142,7 @@ void Engine::ProcessInput(float dt)
                 }
             }
 
-            Vector3 hitPos = EngineManager().RayCastHit(*MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, Width, Height);
+            Vector3 hitPos = EngineManager().RayCastHit(0, *MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, Width, Height);
 
             if(hitPos.x > 0 && hitPos.x < Mygrid->column * Mygrid->cellSize 
             && hitPos.z > 0 && hitPos.z < Mygrid->row * Mygrid->cellSize)
@@ -219,22 +221,42 @@ void Engine::ProcessInput(float dt)
 
             if(startPos == Vector3(0.0f, 0.0f, 0.0f))
             {
-                startPos = EngineManager().RayCastHit(*MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, Width, Height);
-               
-                modf(startPos.x, &intPart);
-                startPos.x = intPart + 0.5f;
-                modf(startPos.z, &intPart);
-                startPos.z = intPart + 0.5f;
-                startPos.y = 0.5f;
+                for(int i = 0; i < lastCubeIndex; i++)
+                {
+                    //position = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cube);
+                    std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, cubes[i], Width, Height);
+
+                    if(get<0>(rayhit) != Vector3(0.0f, 0.0f, 0.0f) && t > std::get<1>(rayhit))
+                    {
+                        startPos = std::get<0>(rayhit);
+                        t = std::get<1>(rayhit); 
+                    }
+                }
+
+                if(startPos == Vector3(0.0f, 0.0f, 0.0f))
+                {
+                    startPos = EngineManager().RayCastHit(0, *MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, Width, Height);
+                
+                    modf(startPos.x, &intPart);
+                    startPos.x = intPart + 0.5f;
+                    modf(startPos.z, &intPart);
+                    startPos.z = intPart + 0.5f;
+                    startPos.y = 0.5f;
+                    k = 0;
+                }
+                else
+                {
+                    k = startPos.y - 0.5f;
+                }
             }
 
-            Vector3 currentPos = EngineManager().RayCastHit(*MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, Width, Height);
+            Vector3 currentPos = EngineManager().RayCastHit(k, *MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, Width, Height);
 
             modf(currentPos.x, &intPart);
             currentPos.x = intPart + 0.5f;
             modf(currentPos.z, &intPart);
             currentPos.z = intPart + 0.5f;
-            currentPos.y = 0.5f;
+            currentPos.y = currentPos.y + 0.5f;
             std::cout << currentPos << std::endl;
             
             Vector3 diff = currentPos - startPos;
