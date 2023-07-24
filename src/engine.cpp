@@ -40,7 +40,6 @@ void Engine::Init()
    ResourceManager::LoadShader("shaders/debugShader.vs", "shaders/debugShader.fs", nullptr, "debugShader");
    ResourceManager::LoadShader("shaders/cubeShaderLit.vs", "shaders/cubeShaderLit.fs", nullptr, "cubeShaderLit");
 
-
    ActiveShader = ResourceManager::GetShader("cubeShaderLit");
    Shader gridShader = ResourceManager::GetShader("gridShader");
 
@@ -49,19 +48,30 @@ void Engine::Init()
    MyCamera = new Camera();
    float targetX = Mygrid->cellSize * (float)Mygrid->column / 2.0f;
    float targetZ = Mygrid->cellSize * (float)Mygrid->row / 2.0f;
-   MyCamera->Target = Vector3(targetX, 0.0f, targetZ);  
+   //MyCamera->Target = Vector3(targetX, 0.0f, targetZ);  
 
    Renderer = new CubeRenderer(ActiveShader);
    Debug();
+
+   Cube cube1(Vector3(0.0f, 0.0f, 0.0f), ActiveColor);
+   Cube cube2(Vector3(2.0f, 0.0f, 0.0f), ActiveColor);
+   Cube cube3(Vector3(0.0f, 2.0f, 0.0f), ActiveColor);
+   Cube cube4(Vector3(0.0f, 0.0f, 2.0f), ActiveColor);
+   cubes.push_back(cube1);
 }
 
 Vector3 lightDirection(-2.0f, -1.0f, -1.5f);
 Matrix4 projection;
+Matrix4 translate;
 
 void Engine::Update(float dt)
 {
-    Matrix4 view = MyCamera->GetViewMatrix();
- 
+    translate.identity();
+    translate.translate(Vector3(0.0f, 0.0f, -3.0f));
+    Matrix4 view = translate * MyCamera->GetRotationMatrix();
+    // Matrix4 view;
+    // view.translate(Vector3(0.0f, 0.0f, -5.0f));
+    //view = MyCamera->GetViewMatrix() * view;
     projection = Matrix4().perspective(MyCamera->Fov, (float)Width/(float)Height, FAR, NEAR);
     ResourceManager::GetShader("cubeShader").Use().SetMatrix4("projection", projection);
     ResourceManager::GetShader("cubeShader").Use().SetMatrix4("view", view);
@@ -80,21 +90,29 @@ void Engine::Update(float dt)
 }
 
 Vector3 startPos(0.0f, 0.0f, 0.0f);
+Vector2 ndcPrevMousePos(-2.0f, -2.0f);
 unsigned k;
-std::vector<Cube> rectCubes; 
+std::vector<Cube> rectCubes;
 
 void Engine::ProcessInput(float dt)
 {
     if(IsMouseMoving)
     {   
+        Vector2 ndcCurrentMousePos(MousePosX * 2.f / Width - 1.f, 1.f - 2.f * MousePosY / Height);
+
         if(Buttons[GLFW_MOUSE_BUTTON_MIDDLE] && Keys[GLFW_KEY_LEFT_SHIFT])
         {
-            MyCamera->CameraPanning(MouseOffsetX, MouseOffsetY, dt);
+            //MyCamera->CameraPanning(MouseOffsetX, MouseOffsetY, dt);
         }
         else if(Buttons[GLFW_MOUSE_BUTTON_MIDDLE])
         {
-            MyCamera->CameraRotation(MouseOffsetX, MouseOffsetY);
+            if(ndcPrevMousePos != Vector2(-2.0f, -2.0f))
+            {
+                MyCamera->CameraOrbitMotion(ndcCurrentMousePos, ndcPrevMousePos);
+            }
         }
+
+        ndcPrevMousePos = ndcCurrentMousePos;
     }
     
     if(Buttons[GLFW_MOUSE_BUTTON_LEFT] && IsMouseInViewPort)
@@ -113,7 +131,7 @@ void Engine::ProcessInput(float dt)
             for(int i = 0; i < lastCubeIndex; i++)
             {
                 //position = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cube);
-                std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, cubes[i], Width, Height);
+                std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, projection, MyCamera->GetRotationMatrix(), scrMousePos, cubes[i], Width, Height);
 
                 if(get<0>(rayhit) != Vector3(0.0f, 0.0f, 0.0f) && t > std::get<1>(rayhit))
                 {
@@ -142,7 +160,7 @@ void Engine::ProcessInput(float dt)
                 }
             }
 
-            Vector3 hitPos = EngineManager().RayCastHit(0, *MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, Width, Height);
+            Vector3 hitPos = EngineManager().RayCastHit(0, *MyCamera, projection, MyCamera->GetRotationMatrix(), scrMousePos, Width, Height);
 
             if(hitPos.x > 0 && hitPos.x < Mygrid->column * Mygrid->cellSize 
             && hitPos.z > 0 && hitPos.z < Mygrid->row * Mygrid->cellSize)
@@ -176,7 +194,7 @@ void Engine::ProcessInput(float dt)
             int index = -1;
             for (unsigned i = 0; i < cubes.size(); i++)
             {
-                std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, cubes[i], Width, Height);
+                std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, projection, MyCamera->GetRotationMatrix(), scrMousePos, cubes[i], Width, Height);
 
                 if(get<0>(rayhit) != Vector3(0.0f, 0.0f, 0.0f) && t > std::get<1>(rayhit))
                 {
@@ -198,7 +216,7 @@ void Engine::ProcessInput(float dt)
             int index = -1;
             for (unsigned i = 0; i < cubes.size(); i++)
             {
-                std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, cubes[i], Width, Height);
+                std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, projection, MyCamera->GetRotationMatrix(), scrMousePos, cubes[i], Width, Height);
 
                 if(get<0>(rayhit) != Vector3(0.0f, 0.0f, 0.0f) && t > std::get<1>(rayhit))
                 {
@@ -224,7 +242,7 @@ void Engine::ProcessInput(float dt)
                 for(int i = 0; i < lastCubeIndex; i++)
                 {
                     //position = EngineManager().RayCastHit(*MyCamera, Width, Height, 0.1f, scrMousePos, cube);
-                    std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, cubes[i], Width, Height);
+                    std::tuple<Vector3, float> rayhit = EngineManager().RayCastHit(*MyCamera, projection, MyCamera->GetRotationMatrix(), scrMousePos, cubes[i], Width, Height);
 
                     if(get<0>(rayhit) != Vector3(0.0f, 0.0f, 0.0f) && t > std::get<1>(rayhit))
                     {
@@ -235,7 +253,7 @@ void Engine::ProcessInput(float dt)
 
                 if(startPos == Vector3(0.0f, 0.0f, 0.0f))
                 {
-                    startPos = EngineManager().RayCastHit(0, *MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, Width, Height);
+                    startPos = EngineManager().RayCastHit(0, *MyCamera, projection, MyCamera->GetRotationMatrix(), scrMousePos, Width, Height);
                 
                     modf(startPos.x, &intPart);
                     startPos.x = intPart + 0.5f;
@@ -250,7 +268,7 @@ void Engine::ProcessInput(float dt)
                 }
             }
 
-            Vector3 currentPos = EngineManager().RayCastHit(k, *MyCamera, projection, MyCamera->GetViewMatrix(), scrMousePos, Width, Height);
+            Vector3 currentPos = EngineManager().RayCastHit(k, *MyCamera, projection, MyCamera->GetRotationMatrix(), scrMousePos, Width, Height);
 
             modf(currentPos.x, &intPart);
             currentPos.x = intPart + 0.5f;
@@ -309,7 +327,7 @@ void Engine::ProcessInput(float dt)
     if(IsMouseScrolling)
     {
         //MyCamera->CameraZoom(MouseScroll);
-        MyCamera->CameraMoveAlongForwardAxis(MouseScroll);
+        //MyCamera->CameraMoveAlongForwardAxis(MouseScroll);
     }
 }
 

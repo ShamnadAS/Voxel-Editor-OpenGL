@@ -209,7 +209,9 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         {
             VoxelEngine.Buttons[button] = true;
             if(button == 2)
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            {
+                //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            }
         }
         else if(action == GLFW_RELEASE)
         {
