@@ -169,6 +169,7 @@ void UI::ViewPort(unsigned int imageId)
 
     ImVec2 imSize = ImGui::GetContentRegionAvail();
     ViewPortSize = Vector2(imSize.x, imSize.y);
+    VoxelEngine.ViewportSize = ViewPortSize;
     
     VoxelEngine.IsMouseInViewPort = VoxelEngine.MousePosX >= 0 && VoxelEngine.MousePosY >= 0
                                     && VoxelEngine.MousePosX <= ViewPortSize.x && VoxelEngine.MousePosY <= ViewPortSize.y;

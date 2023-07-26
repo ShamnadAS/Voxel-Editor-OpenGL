@@ -569,7 +569,7 @@ Matrix4& Matrix4::rotate(float angle, float x, float y, float z)
     float r8 = x * z * c1 + y * s;
     float r9 = y * z * c1 - x * s;
     float r10= z * z * c1 + c;
-
+  
     // multiply rotation matrix
     m[0] = r0 * m0 + r4 * m1 + r8 * m2;
     m[1] = r1 * m0 + r5 * m1 + r9 * m2;
@@ -584,7 +584,7 @@ Matrix4& Matrix4::rotate(float angle, float x, float y, float z)
     m[13]= r1 * m12+ r5 * m13+ r9 * m14;
     m[14]= r2 * m12+ r6 * m13+ r10* m14;
 
-    return *this;
+    return *this; 
 }
 
 Matrix4& Matrix4::rotateX(float angle)

@@ -44,16 +44,14 @@ void Engine::Init()
    Shader gridShader = ResourceManager::GetShader("gridShader");
 
    Mygrid = new Grid(gridShader, gridCount, gridCount, Vector3(0.5f, 0.5f, 0.5f));
-
-   MyCamera = new Camera();
-   float targetX = Mygrid->cellSize * (float)Mygrid->column / 2.0f;
-   float targetZ = Mygrid->cellSize * (float)Mygrid->row / 2.0f;
-   //MyCamera->Target = Vector3(targetX, 0.0f, targetZ);  
+   Vector3 CameraCenter(Mygrid->cellSize * (float)Mygrid->column / 2.0f, 0.0f, Mygrid->cellSize * (float)Mygrid->row / 2.0f);
+   Vector3 cameraPos(0.0f, 0.0f, 12.0f);
+   MyCamera = new Camera(cameraPos, CameraCenter);
 
    Renderer = new CubeRenderer(ActiveShader);
    Debug();
 
-   Cube cube1(Vector3(0.0f, 0.0f, 0.0f), ActiveColor);
+   Cube cube1(Vector3(Mygrid->cellSize * (float)Mygrid->column / 2.0f, 0.5f, Mygrid->cellSize * (float)Mygrid->row / 2.0f), ActiveColor);
    Cube cube2(Vector3(2.0f, 0.0f, 0.0f), ActiveColor);
    Cube cube3(Vector3(0.0f, 2.0f, 0.0f), ActiveColor);
    Cube cube4(Vector3(0.0f, 0.0f, 2.0f), ActiveColor);
@@ -62,16 +60,13 @@ void Engine::Init()
 
 Vector3 lightDirection(-2.0f, -1.0f, -1.5f);
 Matrix4 projection;
-Matrix4 translate;
 
 void Engine::Update(float dt)
-{
-    translate.identity();
-    translate.translate(Vector3(0.0f, 0.0f, -3.0f));
-    Matrix4 view = translate * MyCamera->GetRotationMatrix();
+{ 
+    Matrix4 view = MyCamera->GetRotationMatrix();
     // Matrix4 view;
     // view.translate(Vector3(0.0f, 0.0f, -5.0f));
-    //view = MyCamera->GetViewMatrix() * view;
+    // view = MyCamera->GetViewMatrix() * view;
     projection = Matrix4().perspective(MyCamera->Fov, (float)Width/(float)Height, FAR, NEAR);
     ResourceManager::GetShader("cubeShader").Use().SetMatrix4("projection", projection);
     ResourceManager::GetShader("cubeShader").Use().SetMatrix4("view", view);
@@ -98,7 +93,7 @@ void Engine::ProcessInput(float dt)
 {
     if(IsMouseMoving)
     {   
-        Vector2 ndcCurrentMousePos(MousePosX * 2.f / Width - 1.f, 1.f - 2.f * MousePosY / Height);
+        Vector2 ndcCurrentMousePos(((MousePosX * 2.f) / ViewportSize.x) - 1.f, 1.f - ((2.f * MousePosY) / ViewportSize.y));
 
         if(Buttons[GLFW_MOUSE_BUTTON_MIDDLE] && Keys[GLFW_KEY_LEFT_SHIFT])
         {
@@ -113,7 +108,7 @@ void Engine::ProcessInput(float dt)
         }
 
         ndcPrevMousePos = ndcCurrentMousePos;
-    }
+    }   
     
     if(Buttons[GLFW_MOUSE_BUTTON_LEFT] && IsMouseInViewPort)
     {
@@ -349,19 +344,19 @@ void Engine::Render()
     }
    
     //Debug
-    Shader debugShader = ResourceManager::GetShader("debugShader");
-    debugShader.Use();
-    Matrix4 debugModel;
-    debugModel.scale(Mygrid->row / 2.0f);
-    debugShader.SetMatrix4("model", debugModel);
-    glBindVertexArray(debugVAO);
-    debugShader.SetVector3f("color", Vector3(1.0f, 0.41f, 0.41f));
-    glDrawArrays(GL_LINES, 0, 2);
+    // Shader debugShader = ResourceManager::GetShader("debugShader");
+    // debugShader.Use();
+    // Matrix4 debugModel;
+    // debugModel.scale(Mygrid->row / 2.0f);
+    // debugShader.SetMatrix4("model", debugModel);
+    // glBindVertexArray(debugVAO);
+    // debugShader.SetVector3f("color", Vector3(1.0f, 0.41f, 0.41f));
+    // glDrawArrays(GL_LINES, 0, 2);
 
-    debugShader.SetVector3f("color", Vector3(0.30f, 0.59f, 1.0f));
-    debugModel.rotateY(-90.0f);
-    debugShader.SetMatrix4("model", debugModel);
-    glDrawArrays(GL_LINES, 0, 2);
+    // debugShader.SetVector3f("color", Vector3(0.30f, 0.59f, 1.0f));
+    // debugModel.rotateY(-90.0f);
+    // debugShader.SetMatrix4("model", debugModel);
+    // glDrawArrays(GL_LINES, 0, 2);
 }
 
 void Debug()
