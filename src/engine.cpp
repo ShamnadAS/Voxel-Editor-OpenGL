@@ -16,7 +16,7 @@ Camera *MyCamera;
 unsigned int debugVAO;
 std::vector<Cube> cubes;
 unsigned lastCubeIndex = 0;
-unsigned gridCount = 30;
+unsigned gridCount = 15;
 
 void Debug();   
 
