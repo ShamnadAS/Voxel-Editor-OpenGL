@@ -317,6 +317,8 @@ void Engine::Render()
 {
     Mygrid->Draw();
 
+    //draw the depth map here
+
     Renderer->SetShader(ActiveShader);
 
     for (auto & cube : cubes) 
@@ -331,19 +333,19 @@ void Engine::Render()
     }
    
     //Debug
-    Shader debugShader = ResourceManager::GetShader("debugShader");
-    debugShader.Use();
-    Matrix4 debugModel;
-    debugModel.scale(Mygrid->row / 2.0f);
-    debugShader.SetMatrix4("model", debugModel);
-    glBindVertexArray(debugVAO);
-    debugShader.SetVector3f("color", Vector3(1.0f, 0.41f, 0.41f));
-    glDrawArrays(GL_LINES, 0, 2);
+    // Shader debugShader = ResourceManager::GetShader("debugShader");
+    // debugShader.Use();
+    // Matrix4 debugModel;
+    // debugModel.scale(Mygrid->row / 2.0f);
+    // debugShader.SetMatrix4("model", debugModel);
+    // glBindVertexArray(debugVAO);
+    // debugShader.SetVector3f("color", Vector3(1.0f, 0.41f, 0.41f));
+    // glDrawArrays(GL_LINES, 0, 2);
 
-    debugShader.SetVector3f("color", Vector3(0.30f, 0.59f, 1.0f));
-    debugModel.rotateY(-90.0f);
-    debugShader.SetMatrix4("model", debugModel);
-    glDrawArrays(GL_LINES, 0, 2);
+    // debugShader.SetVector3f("color", Vector3(0.30f, 0.59f, 1.0f));
+    // debugModel.rotateY(-90.0f);
+    // debugShader.SetMatrix4("model", debugModel);
+    // glDrawArrays(GL_LINES, 0, 2);
 }
 
 void Debug()
