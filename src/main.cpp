@@ -190,7 +190,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	}
 
 	VoxelEngine.MouseOffsetX = xpos - lastX;
-	VoxelEngine.MouseOffsetY = lastY - ypos;  // reversed: y ranges bottom to top
+	VoxelEngine.MouseOffsetY = ypos - lastY;  // reversed: y ranges bottom to top
 
     Vector2 mousePos = Vector2(xpos, ypos);
     Vector2 mousePosRelativeToViewport = EngineManager().MousePosRelativeToViewPort(mousePos, myUI, window);

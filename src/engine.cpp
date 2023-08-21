@@ -7,6 +7,7 @@
 #include <engine/grid.h>
 #include <engine/engineManager.h>
 #include <engine/cube.h>
+#include <glm/glm.hpp>
 using namespace std;
 
 CubeRenderer *Renderer;
@@ -50,6 +51,7 @@ void Engine::Init()
    float targetX = Mygrid->cellSize * (float)Mygrid->column / 2.0f;
    float targetZ = Mygrid->cellSize * (float)Mygrid->row / 2.0f;
    MyCamera->Target = Vector3(targetX, 0.0f, targetZ);  
+   MyCamera->m_FocalPoint = glm::vec3(targetX, 0.0f, targetZ);
 
    Renderer = new CubeRenderer(ActiveShader);
    Debug();
@@ -89,7 +91,7 @@ void Engine::ProcessInput(float dt)
     {   
         if(Buttons[GLFW_MOUSE_BUTTON_MIDDLE] && Keys[GLFW_KEY_LEFT_SHIFT])
         {
-            MyCamera->CameraPanning(MouseOffsetX, MouseOffsetY, dt);
+            //MyCamera->CameraPanning(MouseOffsetX, MouseOffsetY, dt);
         }
         else if(Buttons[GLFW_MOUSE_BUTTON_MIDDLE])
         {
@@ -309,7 +311,7 @@ void Engine::ProcessInput(float dt)
     if(IsMouseScrolling)
     {
         //MyCamera->CameraZoom(MouseScroll);
-        MyCamera->CameraMoveAlongForwardAxis(MouseScroll);
+        //MyCamera->CameraMoveAlongForwardAxis(MouseScroll);
     }
 }
 

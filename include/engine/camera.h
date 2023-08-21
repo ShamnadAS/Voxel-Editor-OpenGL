@@ -6,6 +6,12 @@
 #include <vector>
 #include <math.h>
 
+#include <glm/gtx/quaternion.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+
 // Default camera values
 const float SPEED = 0.5f;
 const float SENSITIVITY = 0.05f;
@@ -29,6 +35,12 @@ public:
     float MouseSensitivity;
     float Fov;
 
+    float m_Pitch = 0.0f, m_Yaw = 0.0f;
+    glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
+    float m_Distance = 20.0f;
+    glm::vec3 m_FocalPoint = { 0.0f, 0.0f, 0.0f };
+    glm::mat4 m_ViewMatrix;
+
     // constructor with vectors
     Camera(Vector3 position = Vector3(0.0f, 0.0f, 5.0f), Vector3 up = Vector3(0.0f, 1.0f, 0.0f), Vector3 target = Vector3(0.0f, 0.0f, 0.0f)) 
     : Forward(Vector3(0.0f, 0.0f, 1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Fov(FOV)
@@ -36,76 +48,67 @@ public:
         Position = position;
         WorldUp = up;
         Target = target;
-        updateCameraVectors();
+        UpdateView();
     }
 
     Matrix4 GetViewMatrix()
     {
-        Matrix4 lookAt;
-        return lookAt.CameraLookAt(Position, Target, Up);
-    }
-
-    void CameraPanning(float xoffset, float yoffset, float deltaTime)
-    {
-        xoffset *= MouseSensitivity;
-        yoffset *= MouseSensitivity;
-        Vector3 movement = Right * -xoffset + Up * -yoffset;
-        Position += movement;
-        Target = Position - Forward;
+        Matrix4 view;
+        const float *pSource = (const float*)glm::value_ptr(m_ViewMatrix);
+        for (int i = 0; i < 16; ++i)
+        {
+            view[i] = pSource[i];
+        }
+        
+        return view;
     }
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void CameraRotation(float xoffset, float yoffset)
     {
-        xoffset *= MouseSensitivity;
-        yoffset *= MouseSensitivity;
+        xoffset*=0.003f;
+        yoffset*=0.003f;
+        glm::vec2 delta(xoffset, yoffset);
+        float yawSign = GetUpDirection().y < 0 ? -1.0f : 1.0f;
+		m_Yaw += yawSign * delta.x * RotationSpeed();
+		m_Pitch += delta.y * RotationSpeed();
 
-        Vector3 targetToCamera = Position - Target; 
-        Matrix4 model;
-        model.rotateY(-xoffset);
-        targetToCamera = model * targetToCamera;
-        Vector3 a(targetToCamera.x, 0.0f, targetToCamera.z);
-        Vector3 axis = a.cross(WorldUp).normalize(); //camera's right vector
-        model.identity();
-        model.rotate(-yoffset, axis);
-        targetToCamera = model * targetToCamera;
-        
-        Vector3 forward = targetToCamera;
-        forward.normalize();
-        // update Front, Right and Up Vectors using the updated Euler angles
-        if(forward.dot(WorldUp) < 0.999f && forward.dot(-WorldUp) < 0.999f)
-        {
-            Position = Target + targetToCamera;
-            updateCameraVectors();
-        }
+        UpdateView();
     }
 
-    void CameraMoveAlongForwardAxis(float yoffset)
-    {
-        Matrix4 model;
-        model.translate(Forward * -yoffset);
-        Position = model * Position;
-    }
+    glm::vec3 GetUpDirection() const
+	{
+		return glm::rotate(GetOrientation(), glm::vec3(0.0f, 1.0f, 0.0f));
+	}
 
-    // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-    void CameraZoom(float yoffset)
-    {
-        Fov -= (float)yoffset;
-        if (Fov < 1.0f)
-            Fov = 1.0f;
-        if (Fov > 45.0f)
-            Fov = 45.0f;
-    }
+    glm::quat GetOrientation() const
+	{
+		return glm::quat(glm::vec3(-m_Pitch, -m_Yaw, 0.0f));
+	}
+
+    float RotationSpeed() const
+	{
+		return 0.8f;
+	}
     
-private:
-    // calculates the front vector from the Camera's (updated) Euler Angles
-    void updateCameraVectors()
-    {
-        //calculate new front vector
-        Forward = Position - Target;
-        Forward.normalize();
-        //recalculate right and up vectors
-        Right = WorldUp.cross(Forward).normalize();
-        Up = Forward.cross(Right).normalize();
-    }
+	void UpdateView()
+	{
+		// m_Yaw = m_Pitch = 0.0f; // Lock the camera's rotation
+		m_Position = CalculatePosition();
+        Position = Vector3(m_Position.x, m_Position.y, m_Position.z);
+
+		glm::quat orientation = GetOrientation();
+		m_ViewMatrix = glm::translate(glm::mat4(1.0f), m_Position) * glm::toMat4(orientation);
+		m_ViewMatrix = glm::inverse(m_ViewMatrix);
+	}
+
+    glm::vec3 CalculatePosition() const
+	{
+		return m_FocalPoint - GetForwardDirection() * m_Distance;
+	}
+
+    glm::vec3 GetForwardDirection() const
+	{
+		return glm::rotate(GetOrientation(), glm::vec3(0.0f, 0.0f, -1.0f));
+	}
 };

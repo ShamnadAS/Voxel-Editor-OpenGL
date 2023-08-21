@@ -203,6 +203,7 @@ void UI::Debug(GLFWwindow *window)
 {
     ImGui::Begin("Debug");
     ImGui::Text("MousePos: (%.f, %.f)", VoxelEngine.MousePosX, VoxelEngine.MousePosY);
+    ImGui::Text("MouseOffset: (%.f, %.f)", VoxelEngine.MouseOffsetX, VoxelEngine.MouseOffsetY);
     ImGui::Text("Viewport pos: (%.f , %.f)", this->ViewPortPos.x, this->ViewPortPos.y);
     int xPos, yPos;
     glfwGetWindowPos(window, &xPos, &yPos);
