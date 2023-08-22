@@ -114,9 +114,9 @@ int main(int argc, char *argv[])
         myUI->ControlBar();
         
         //update the viewport dimension
-        glViewport(0, 0, myUI->ViewPortSize.x, myUI->ViewPortSize.y);
-        VoxelEngine.Width = myUI->ViewPortSize.x;
-        VoxelEngine.Height = myUI->ViewPortSize.y;
+        glViewport(0, 0, VoxelEngine.ViewportSize.x, VoxelEngine.ViewportSize.y);
+        VoxelEngine.Width = VoxelEngine.ViewportSize.x;
+        VoxelEngine.Height = VoxelEngine.ViewportSize.y;
 
         // manage user input
         // -----------------

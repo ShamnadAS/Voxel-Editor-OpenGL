@@ -20,19 +20,7 @@ const float FOV = 45.0f;
 class Camera
 {
 public:
-    // camera Attributes
     Vector3 Position;
-    Vector3 Forward;
-    Vector3 Up;
-    Vector3 Right;
-    Vector3 WorldUp;
-    Vector3 Target;
-    // euler Angles
-    float HorizontalAngle;
-    float VerticalAngle;
-    // camera options
-    float MovementSpeed;
-    float MouseSensitivity;
     float Fov;
 
     float m_Pitch = 0.0f, m_Yaw = 0.0f;
@@ -40,14 +28,13 @@ public:
     float m_Distance = 20.0f;
     glm::vec3 m_FocalPoint = { 0.0f, 0.0f, 0.0f };
     glm::mat4 m_ViewMatrix;
+    float m_ViewportWidth = 1644, m_ViewportHeight = 800;
 
     // constructor with vectors
     Camera(Vector3 position = Vector3(0.0f, 0.0f, 5.0f), Vector3 up = Vector3(0.0f, 1.0f, 0.0f), Vector3 target = Vector3(0.0f, 0.0f, 0.0f)) 
-    : Forward(Vector3(0.0f, 0.0f, 1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Fov(FOV)
+    : Fov(FOV)
     {
         Position = position;
-        WorldUp = up;
-        Target = target;
         UpdateView();
     }
 
@@ -63,8 +50,33 @@ public:
         return view;
     }
 
+    float RotationSpeed() const
+	{
+		return 0.8f;
+	}
+
+    std::pair<float, float> PanSpeed() const
+	{
+		float x = std::min(m_ViewportWidth / 1000.0f, 2.4f); // max = 2.4f
+		float xFactor = 0.0366f * (x * x) - 0.1778f * x + 0.3021f;
+
+		float y = std::min(m_ViewportHeight / 1000.0f, 2.4f); // max = 2.4f
+		float yFactor = 0.0366f * (y * y) - 0.1778f * y + 0.3021f;
+        float speed = 0.005f;
+		return { xFactor * speed, yFactor * speed};
+	}
+
+    float ZoomSpeed() const
+	{
+		float distance = m_Distance * 0.2f;
+		distance = std::max(distance, 0.0f);
+		float speed = distance * distance * 0.05f;
+		speed = std::min(speed, 100.0f); // max speed = 100
+		return speed;
+	}
+
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void CameraRotation(float xoffset, float yoffset)
+    void MouseRotation(float xoffset, float yoffset)
     {
         xoffset*=0.003f;
         yoffset*=0.003f;
@@ -76,19 +88,24 @@ public:
         UpdateView();
     }
 
-    glm::vec3 GetUpDirection() const
+    void MousePan(float xoffset, float yoffset)
 	{
-		return glm::rotate(GetOrientation(), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::vec2 delta(xoffset, yoffset);
+        auto [xSpeed, ySpeed] = PanSpeed();
+		m_FocalPoint += -GetRightDirection() * delta.x * xSpeed * m_Distance;
+		m_FocalPoint += GetUpDirection() * delta.y * ySpeed * m_Distance;
+        UpdateView();
 	}
 
-    glm::quat GetOrientation() const
+    void MouseZoom(float delta)
 	{
-		return glm::quat(glm::vec3(-m_Pitch, -m_Yaw, 0.0f));
-	}
-
-    float RotationSpeed() const
-	{
-		return 0.8f;
+		m_Distance -= delta * ZoomSpeed();
+		if (m_Distance < 1.0f)
+		{
+			m_FocalPoint += GetForwardDirection();
+			m_Distance = 1.0f;
+		}
+        UpdateView();
 	}
     
 	void UpdateView()
@@ -102,6 +119,17 @@ public:
 		m_ViewMatrix = glm::inverse(m_ViewMatrix);
 	}
 
+    void UpdateViewportSize(float width, float height)
+    {
+        m_ViewportWidth = width;
+        m_ViewportHeight = height;
+    }
+
+    glm::quat GetOrientation() const
+	{
+		return glm::quat(glm::vec3(-m_Pitch, -m_Yaw, 0.0f));
+	}
+
     glm::vec3 CalculatePosition() const
 	{
 		return m_FocalPoint - GetForwardDirection() * m_Distance;
@@ -110,5 +138,15 @@ public:
     glm::vec3 GetForwardDirection() const
 	{
 		return glm::rotate(GetOrientation(), glm::vec3(0.0f, 0.0f, -1.0f));
+	}
+
+    glm::vec3 GetUpDirection() const
+	{
+		return glm::rotate(GetOrientation(), glm::vec3(0.0f, 1.0f, 0.0f));
+	}
+
+    glm::vec3 GetRightDirection() const
+	{
+		return glm::rotate(GetOrientation(), glm::vec3(1.0f, 0.0f, 0.0f));
 	}
 };

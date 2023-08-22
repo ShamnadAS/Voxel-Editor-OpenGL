@@ -25,7 +25,9 @@ public:
 
     unsigned int            ActiveTool;
     Vector3                 ActiveColor;
-    Shader                  ActiveShader;                  
+    Shader                  ActiveShader;  
+
+    Vector2                 ViewportSize;                
 
     // constructor/destructor
     Engine(unsigned int width, unsigned int height);

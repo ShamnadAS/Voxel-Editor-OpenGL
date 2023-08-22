@@ -23,7 +23,7 @@ void Debug();
 
 Engine::Engine(unsigned int width, unsigned int height)
     : Keys(), Buttons(), Width(width), Height(height), IsMouseMoving(false), IsMouseScrolling(false),ActiveTool(0),
-    ActiveColor(Vector3(1.0f, 1.0f, 1.0f))
+    ActiveColor(Vector3(1.0f, 1.0f, 1.0f)), ViewportSize(Vector2(0.0f, 0.0f))
 {
 }
 
@@ -50,7 +50,6 @@ void Engine::Init()
    MyCamera = new Camera();
    float targetX = Mygrid->cellSize * (float)Mygrid->column / 2.0f;
    float targetZ = Mygrid->cellSize * (float)Mygrid->row / 2.0f;
-   MyCamera->Target = Vector3(targetX, 0.0f, targetZ);  
    MyCamera->m_FocalPoint = glm::vec3(targetX, 0.0f, targetZ);
 
    Renderer = new CubeRenderer(ActiveShader);
@@ -62,6 +61,10 @@ Matrix4 projection;
 
 void Engine::Update(float dt)
 {
+    if(MyCamera->m_ViewportWidth != ViewportSize.x || MyCamera->m_ViewportHeight != ViewportSize.y)
+    {
+        MyCamera->UpdateViewportSize(ViewportSize.x, ViewportSize.y);
+    }
     Matrix4 view = MyCamera->GetViewMatrix();
  
     projection = Matrix4().perspective(MyCamera->Fov, (float)Width/(float)Height, FAR, NEAR);
@@ -91,11 +94,11 @@ void Engine::ProcessInput(float dt)
     {   
         if(Buttons[GLFW_MOUSE_BUTTON_MIDDLE] && Keys[GLFW_KEY_LEFT_SHIFT])
         {
-            //MyCamera->CameraPanning(MouseOffsetX, MouseOffsetY, dt);
+            MyCamera->MousePan(MouseOffsetX, MouseOffsetY);
         }
         else if(Buttons[GLFW_MOUSE_BUTTON_MIDDLE])
         {
-            MyCamera->CameraRotation(MouseOffsetX, MouseOffsetY);
+            MyCamera->MouseRotation(MouseOffsetX, MouseOffsetY);
         }
     }
     
@@ -310,8 +313,7 @@ void Engine::ProcessInput(float dt)
 
     if(IsMouseScrolling)
     {
-        //MyCamera->CameraZoom(MouseScroll);
-        //MyCamera->CameraMoveAlongForwardAxis(MouseScroll);
+        MyCamera->MouseZoom(MouseScroll);
     }
 }
 

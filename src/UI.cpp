@@ -103,20 +103,24 @@ void UI::ToolBar()
     ImGui::Begin("Toolbar");
 
 
-    if(ImGui::ImageButton((ImTextureID)pencilID, {32, 32}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0), VoxelEngine.ActiveTool == 0 ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))
+    if(ImGui::ImageButton((ImTextureID)pencilID, {32, 32}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0), VoxelEngine.ActiveTool == 0 ? 
+    ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))
     { 
         VoxelEngine.ActiveTool = 0;
     }
-    if(ImGui::ImageButton((ImTextureID)rectID, {32, 32}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0), VoxelEngine.ActiveTool == 3 ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))
+    if(ImGui::ImageButton((ImTextureID)rectID, {32, 32}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0), VoxelEngine.ActiveTool == 3 ? 
+    ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))
     {
         VoxelEngine.ActiveTool = 3;
     }
     ImGui::IsItemActive();
-    if(ImGui::ImageButton((ImTextureID)eraserID, {32, 32}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0), VoxelEngine.ActiveTool == 1 ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))
+    if(ImGui::ImageButton((ImTextureID)eraserID, {32, 32}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0), VoxelEngine.ActiveTool == 1 ? 
+    ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))
     {
         VoxelEngine.ActiveTool = 1;
     }
-    if(ImGui::ImageButton((ImTextureID)paintID, {32, 32}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0), VoxelEngine.ActiveTool == 2 ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))
+    if(ImGui::ImageButton((ImTextureID)paintID, {32, 32}, {0, 0}, {1, 1}, -1, ImVec4(0, 0, 0, 0), VoxelEngine.ActiveTool == 2 ? 
+    ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.3f)))
     {
         VoxelEngine.ActiveTool = 2;
     }
@@ -168,10 +172,10 @@ void UI::ViewPort(unsigned int imageId)
     this->ViewPortPos = Vector2(imPos.x + style.WindowPadding.x, imPos.y + style.WindowPadding.y + titleBarHeight);
 
     ImVec2 imSize = ImGui::GetContentRegionAvail();
-    ViewPortSize = Vector2(imSize.x, imSize.y);
+    VoxelEngine.ViewportSize = Vector2(imSize.x, imSize.y);
     
     VoxelEngine.IsMouseInViewPort = VoxelEngine.MousePosX >= 0 && VoxelEngine.MousePosY >= 0
-                                    && VoxelEngine.MousePosX <= ViewPortSize.x && VoxelEngine.MousePosY <= ViewPortSize.y;
+    && VoxelEngine.MousePosX <= VoxelEngine.ViewportSize.x && VoxelEngine.MousePosY <= VoxelEngine.ViewportSize.y;
 
     ImGui::Image((ImTextureID)imageId, imSize, {0, 1}, {1, 0});
     
@@ -208,7 +212,7 @@ void UI::Debug(GLFWwindow *window)
     int xPos, yPos;
     glfwGetWindowPos(window, &xPos, &yPos);
     ImGui::Text("GLFWWindow pos: (%.f , %.f)", xPos, yPos);
-    ImGui::Text("Viewport Siz: %.f, %.f", ViewPortSize.x, ViewPortSize.y);
+    ImGui::Text("Viewport Siz: %.f, %.f", VoxelEngine.ViewportSize.x, VoxelEngine.ViewportSize.y);
     ImGui::End();
 }
 

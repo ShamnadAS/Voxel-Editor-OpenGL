@@ -55,7 +55,18 @@
         "functional": "cpp",
         "list": "cpp",
         "unordered_map": "cpp",
-        "xhash": "cpp"
+        "xhash": "cpp",
+        "charconv": "cpp",
+        "cstdarg": "cpp",
+        "format": "cpp",
+        "locale": "cpp",
+        "mutex": "cpp",
+        "optional": "cpp",
+        "ratio": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp",
+        "xlocbuf": "cpp",
+        "xlocmes": "cpp"
     },
     "cSpell.words": [
         "awesomeface"
