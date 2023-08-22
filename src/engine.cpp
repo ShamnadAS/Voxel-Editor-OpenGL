@@ -47,10 +47,12 @@ void Engine::Init()
 
    Mygrid = new Grid(gridShader, gridCount, gridCount, Vector3(0.5f, 0.5f, 0.5f));
 
-   MyCamera = new Camera();
    float targetX = Mygrid->cellSize * (float)Mygrid->column / 2.0f;
    float targetZ = Mygrid->cellSize * (float)Mygrid->row / 2.0f;
-   MyCamera->m_FocalPoint = glm::vec3(targetX, 0.0f, targetZ);
+   
+   glm::vec3 target(targetX, 0.0f, targetZ);
+
+   MyCamera = new Camera(target, 0.0f, 30.0f * DEG2RAD);
 
    Renderer = new CubeRenderer(ActiveShader);
    Debug();
@@ -88,20 +90,23 @@ Vector3 startPos(0.0f, 0.0f, 0.0f);
 unsigned k;
 std::vector<Cube> rectCubes; 
 
+glm::vec2 lastMousePos(0.0f, 0.0f);
+
 void Engine::ProcessInput(float dt)
 {
-    if(IsMouseMoving)
-    {   
-        if(Buttons[GLFW_MOUSE_BUTTON_MIDDLE] && Keys[GLFW_KEY_LEFT_SHIFT])
-        {
-            MyCamera->MousePan(MouseOffsetX, MouseOffsetY);
-        }
-        else if(Buttons[GLFW_MOUSE_BUTTON_MIDDLE])
-        {
-            MyCamera->MouseRotation(MouseOffsetX, MouseOffsetY);
-        }
+    glm::vec2 currentMousePos(MousePosX, MousePosY);
+    glm::vec2 delta = (currentMousePos - lastMousePos) * 0.003f;
+    lastMousePos = currentMousePos;
+
+    if(Buttons[GLFW_MOUSE_BUTTON_MIDDLE] && Keys[GLFW_KEY_LEFT_SHIFT])
+    {
+        MyCamera->MousePan(delta);
     }
-    
+    else if(Buttons[GLFW_MOUSE_BUTTON_MIDDLE])
+    {
+        MyCamera->MouseRotation(delta);
+    }
+ 
     if(Buttons[GLFW_MOUSE_BUTTON_LEFT] && IsMouseInViewPort)
     {
         Vector2 scrMousePos(MousePosX, MousePosY); //screen space coordinates

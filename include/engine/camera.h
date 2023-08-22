@@ -13,8 +13,6 @@
 
 
 // Default camera values
-const float SPEED = 0.5f;
-const float SENSITIVITY = 0.05f;
 const float FOV = 45.0f;
 
 class Camera
@@ -29,12 +27,15 @@ public:
     glm::vec3 m_FocalPoint = { 0.0f, 0.0f, 0.0f };
     glm::mat4 m_ViewMatrix;
     float m_ViewportWidth = 1644, m_ViewportHeight = 800;
+    glm::vec2 m_InitialMousePosition = { 0.0f, 0.0f };
 
     // constructor with vectors
-    Camera(Vector3 position = Vector3(0.0f, 0.0f, 5.0f), Vector3 up = Vector3(0.0f, 1.0f, 0.0f), Vector3 target = Vector3(0.0f, 0.0f, 0.0f)) 
+    Camera(glm::vec3 focalPoint = glm::vec3(0, 0, 0), float yaw = 0.0f, float pitch = 0.0f) 
     : Fov(FOV)
     {
-        Position = position;
+        m_Yaw = yaw;
+        m_Pitch = pitch;
+        m_FocalPoint = focalPoint;
         UpdateView();
     }
 
@@ -62,8 +63,7 @@ public:
 
 		float y = std::min(m_ViewportHeight / 1000.0f, 2.4f); // max = 2.4f
 		float yFactor = 0.0366f * (y * y) - 0.1778f * y + 0.3021f;
-        float speed = 0.005f;
-		return { xFactor * speed, yFactor * speed};
+		return { xFactor, yFactor};
 	}
 
     float ZoomSpeed() const
@@ -76,11 +76,8 @@ public:
 	}
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void MouseRotation(float xoffset, float yoffset)
+    void MouseRotation(glm::vec2 &delta)
     {
-        xoffset*=0.003f;
-        yoffset*=0.003f;
-        glm::vec2 delta(xoffset, yoffset);
         float yawSign = GetUpDirection().y < 0 ? -1.0f : 1.0f;
 		m_Yaw += yawSign * delta.x * RotationSpeed();
 		m_Pitch += delta.y * RotationSpeed();
@@ -88,9 +85,8 @@ public:
         UpdateView();
     }
 
-    void MousePan(float xoffset, float yoffset)
+    void MousePan(glm::vec2 &delta)
 	{
-        glm::vec2 delta(xoffset, yoffset);
         auto [xSpeed, ySpeed] = PanSpeed();
 		m_FocalPoint += -GetRightDirection() * delta.x * xSpeed * m_Distance;
 		m_FocalPoint += GetUpDirection() * delta.y * ySpeed * m_Distance;
